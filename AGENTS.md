@@ -69,3 +69,4 @@ npm test          # Run tests
 
 - Product requirements: docs/PRD.md
 - Technical architecture: docs/ARCHITECTURE.md
+- Design and themes: docs/DESIGN.md

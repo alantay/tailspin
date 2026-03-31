@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import AuthForm from "@/components/AuthForm";
 
-export default async function LandingPage() {
+export default async function SignUpPage() {
   const supabase = await createClient();
   const {
     data: { user },
@@ -15,18 +15,13 @@ export default async function LandingPage() {
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold tracking-tight">Tailspin</h1>
-          <p className="mt-2 text-sm text-neutral-500">
-            Share pet photos freely. Owners check in on their own terms.
-          </p>
+          <p className="mt-2 text-sm text-neutral-500">Create your boarder account</p>
         </div>
-        <AuthForm mode="login" />
+        <AuthForm mode="signup" />
         <p className="mt-4 text-center text-sm text-neutral-500">
-          No account?{" "}
-          <a
-            href="/auth/sign-up"
-            className="text-neutral-900 underline underline-offset-4"
-          >
-            Sign up
+          Already have an account?{" "}
+          <a href="/" className="text-neutral-900 underline underline-offset-4">
+            Sign in
           </a>
         </p>
       </div>

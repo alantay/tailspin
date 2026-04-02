@@ -3,6 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent } from "@/components/ui/card";
 
 type Props = {
   mode: "login" | "signup";
@@ -53,74 +57,69 @@ export default function AuthForm({ mode }: Props) {
 
   if (signUpDone) {
     return (
-      <div className="rounded-xl border border-neutral-200 p-6 text-center text-sm text-neutral-600">
-        <p className="font-medium text-neutral-900">Check your email</p>
-        <p className="mt-1">
-          We sent a confirmation link to <strong>{email}</strong>.
-        </p>
-      </div>
+      <Card>
+        <CardContent className="pt-6 text-center">
+          <p className="text-2xl mb-2">🐾</p>
+          <p className="font-semibold">Check your email!</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            We sent a confirmation link to <strong>{email}</strong>. Click it
+            and you&apos;re in.
+          </p>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-      {mode === "signup" && (
-        <div>
-          <label className="mb-1 block text-sm font-medium" htmlFor="name">
-            Your name
-          </label>
-          <input
-            id="name"
-            type="text"
-            required
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-neutral-400"
-            placeholder="Jane Smith"
-          />
-        </div>
-      )}
-      <div>
-        <label className="mb-1 block text-sm font-medium" htmlFor="email">
-          Email
-        </label>
-        <input
-          id="email"
-          type="email"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-neutral-400"
-          placeholder="you@example.com"
-        />
-      </div>
-      <div>
-        <label className="mb-1 block text-sm font-medium" htmlFor="password">
-          Password
-        </label>
-        <input
-          id="password"
-          type="password"
-          required
-          minLength={6}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-neutral-400"
-          placeholder="••••••••"
-        />
-      </div>
-      {error && <p className="text-sm text-red-500">{error}</p>}
-      <button
-        type="submit"
-        disabled={loading}
-        className="mt-1 rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50"
-      >
-        {loading
-          ? "..."
-          : mode === "login"
-            ? "Sign in"
-            : "Create account"}
-      </button>
-    </form>
+    <Card>
+      <CardContent className="pt-6">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          {mode === "signup" && (
+            <div className="grid gap-1.5">
+              <Label htmlFor="name">Your name</Label>
+              <Input
+                id="name"
+                type="text"
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Jane Smith"
+              />
+            </div>
+          )}
+          <div className="grid gap-1.5">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+            />
+          </div>
+          <div className="grid gap-1.5">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              required
+              minLength={6}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+            />
+          </div>
+          {error && <p className="text-sm text-destructive">{error}</p>}
+          <Button type="submit" disabled={loading} className="mt-1 w-full">
+            {loading
+              ? "Just a sec…"
+              : mode === "login"
+                ? "Sign in"
+                : "Create account"}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
   );
 }

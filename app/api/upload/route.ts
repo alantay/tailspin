@@ -25,12 +25,8 @@ export async function GET(request: NextRequest) {
 
   if (!stay) return new Response("Forbidden", { status: 403 });
 
+  // Return just the path — client will upload directly to Supabase Storage
+  // REST API using its own session token (avoids signed URL 400 issues with video)
   const path = `stays/${stay_id}/${filename}`;
-  const { data, error } = await supabase.storage
-    .from("stay-media")
-    .createSignedUploadUrl(path);
-
-  if (error) return new Response(error.message, { status: 500 });
-
-  return Response.json({ path, signedUrl: data.signedUrl });
+  return Response.json({ path });
 }

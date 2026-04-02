@@ -2,6 +2,12 @@
 
 import { useState } from "react";
 import type { StayRow } from "@/lib/types";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/lib/button-variants";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { cn } from "@/lib/utils";
 
 type Props = {
   stay: StayRow;
@@ -9,17 +15,9 @@ type Props = {
 
 export default function StayCard({ stay }: Props) {
   const [copied, setCopied] = useState(false);
-  const shareUrl =
-    typeof window !== "undefined"
-      ? `${window.location.origin}/stay/${stay.share_token}`
-      : `/stay/${stay.share_token}`;
 
   async function handleShare() {
-    const url =
-      typeof window !== "undefined"
-        ? `${window.location.origin}/stay/${stay.share_token}`
-        : `/stay/${stay.share_token}`;
-
+    const url = `${window.location.origin}/stay/${stay.share_token}`;
     if (navigator.share) {
       await navigator.share({ title: `${stay.pet_name}'s stay`, url });
     } else {
@@ -29,45 +27,46 @@ export default function StayCard({ stay }: Props) {
     }
   }
 
-  const formattedDate = new Date(stay.start_date).toLocaleDateString("en", {
+  const startFormatted = new Date(stay.start_date).toLocaleDateString("en", {
     month: "short",
     day: "numeric",
   });
+  const endFormatted = stay.end_date
+    ? new Date(stay.end_date).toLocaleDateString("en", { month: "short", day: "numeric" })
+    : null;
 
   return (
-    <div className="flex items-center justify-between rounded-xl border border-neutral-100 bg-white p-4">
-      <div>
-        <p className="font-medium">{stay.pet_name}</p>
-        <p className="mt-0.5 text-sm text-neutral-500">
-          {formattedDate}
-          {stay.end_date
-            ? ` – ${new Date(stay.end_date).toLocaleDateString("en", { month: "short", day: "numeric" })}`
-            : ""}
-        </p>
-      </div>
-      <div className="flex items-center gap-2">
-        <span
-          className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-            stay.status === "active"
-              ? "bg-green-50 text-green-700"
-              : "bg-neutral-100 text-neutral-500"
-          }`}
-        >
-          {stay.status}
-        </span>
-        <a
-          href={`/dashboard/stay/${stay.id}`}
-          className="rounded-lg border border-neutral-200 px-3 py-1.5 text-xs font-medium hover:bg-neutral-50"
-        >
-          Open
-        </a>
-        <button
-          onClick={handleShare}
-          className="rounded-lg border border-neutral-200 px-3 py-1.5 text-xs font-medium hover:bg-neutral-50"
-        >
-          {copied ? "Copied!" : "Share"}
-        </button>
-      </div>
-    </div>
+    <Card>
+      <CardContent className="flex items-center justify-between gap-4 py-4">
+        <div className="flex items-center gap-3">
+          <Avatar>
+            {stay.pet_photo && <AvatarImage src={stay.pet_photo} alt={stay.pet_name} />}
+            <AvatarFallback className="bg-accent text-lg">
+              🐾
+            </AvatarFallback>
+          </Avatar>
+          <div>
+            <p className="font-semibold">{stay.pet_name}</p>
+            <p className="text-sm text-muted-foreground">
+              {startFormatted}{endFormatted ? ` – ${endFormatted}` : ""}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Badge variant={stay.status === "active" ? "default" : "secondary"}>
+            {stay.status === "active" ? "Active" : "Done"}
+          </Badge>
+          <a
+            href={`/dashboard/stay/${stay.id}`}
+            className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
+          >
+            Open
+          </a>
+          <Button variant="outline" size="sm" onClick={handleShare}>
+            {copied ? "Copied! ✓" : "Share"}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

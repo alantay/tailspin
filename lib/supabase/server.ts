@@ -12,11 +12,15 @@ export async function createClient() {
           return cookieStore.getAll();
         },
         setAll(list) {
-          list.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options)
-          );
+          try {
+            list.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options),
+            );
+          } catch {
+            // Server Components can't set cookies — middleware handles session refresh
+          }
         },
       },
-    }
+    },
   );
 }

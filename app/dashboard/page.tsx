@@ -1,5 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import StayCard from "@/components/StayCard";
+import { buttonVariants } from "@/lib/button-variants";
+import { cn } from "@/lib/utils";
 import type { StayRow } from "@/lib/types";
 
 export default async function DashboardPage() {
@@ -7,6 +9,16 @@ export default async function DashboardPage() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  // Auto-complete stays whose end_date has passed
+  const today = new Date().toISOString().slice(0, 10);
+  await supabase
+    .from("stays")
+    .update({ status: "completed" })
+    .eq("boarder_id", user!.id)
+    .eq("status", "active")
+    .not("end_date", "is", null)
+    .lt("end_date", today);
 
   const { data: stays } = await supabase
     .from("stays")
@@ -20,20 +32,17 @@ export default async function DashboardPage() {
   return (
     <div>
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">Your stays</h2>
-        <a
-          href="/dashboard/new"
-          className="rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white"
-        >
-          New stay
+        <h2 className="text-2xl font-extrabold">Your stays</h2>
+        <a href="/dashboard/new" className={buttonVariants()}>
+          + New stay
         </a>
       </div>
 
       {active.length > 0 && (
         <section className="mt-6">
-          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-neutral-400">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Active
-          </h3>
+          </p>
           <div className="flex flex-col gap-2">
             {active.map((stay: StayRow) => (
               <StayCard key={stay.id} stay={stay} />
@@ -44,9 +53,9 @@ export default async function DashboardPage() {
 
       {past.length > 0 && (
         <section className="mt-6">
-          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-neutral-400">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Past stays
-          </h3>
+          </p>
           <div className="flex flex-col gap-2">
             {past.map((stay: StayRow) => (
               <StayCard key={stay.id} stay={stay} />
@@ -56,11 +65,15 @@ export default async function DashboardPage() {
       )}
 
       {(stays ?? []).length === 0 && (
-        <div className="mt-12 text-center text-neutral-400">
-          <p>No stays yet.</p>
-          <p className="mt-1 text-sm">
-            Create a stay and start sharing photos.
+        <div className="mt-16 text-center">
+          <p className="text-4xl mb-3">🐶</p>
+          <p className="font-semibold text-lg">No stays yet.</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Your future furry guests are out there somewhere, probably chewing a shoe.
           </p>
+          <a href="/dashboard/new" className={cn(buttonVariants(), "mt-6 inline-flex")}>
+            Create your first stay
+          </a>
         </div>
       )}
     </div>

@@ -4,6 +4,13 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { generateShareToken, resizeImageToJpeg } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/lib/button-variants";
+import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 export default function NewStayPage() {
   const router = useRouter();
@@ -73,105 +80,84 @@ export default function NewStayPage() {
 
   return (
     <div>
-      <h2 className="text-xl font-semibold">New stay</h2>
-      <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
-        <div>
-          <label className="mb-1 block text-sm font-medium" htmlFor="petName">
-            Pet name <span className="text-red-400">*</span>
-          </label>
-          <input
-            id="petName"
-            type="text"
-            required
-            value={petName}
-            onChange={(e) => setPetName(e.target.value)}
-            className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-neutral-400"
-            placeholder="Biscuit"
-          />
-        </div>
+      <h2 className="text-2xl font-extrabold mb-6">New stay 🐾</h2>
+      <Card>
+        <CardHeader />
+        <CardContent>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+            <div className="grid gap-1.5">
+              <Label htmlFor="petName">
+                Pet name <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="petName"
+                type="text"
+                required
+                value={petName}
+                onChange={(e) => setPetName(e.target.value)}
+                placeholder="Biscuit"
+              />
+            </div>
 
-        <div>
-          <label
-            className="mb-1 block text-sm font-medium"
-            htmlFor="petPhoto"
-          >
-            Pet photo (optional)
-          </label>
-          <input
-            id="petPhoto"
-            type="file"
-            accept="image/*"
-            onChange={(e) => setPetPhotoFile(e.target.files?.[0] ?? null)}
-            className="w-full text-sm text-neutral-600 file:mr-3 file:rounded-lg file:border-0 file:bg-neutral-100 file:px-3 file:py-1.5 file:text-xs file:font-medium"
-          />
-        </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="petPhoto">Pet photo (optional)</Label>
+              <Input
+                id="petPhoto"
+                type="file"
+                accept="image/*"
+                onChange={(e) => setPetPhotoFile(e.target.files?.[0] ?? null)}
+                className="cursor-pointer"
+              />
+            </div>
 
-        <div>
-          <label className="mb-1 block text-sm font-medium" htmlFor="note">
-            Note (optional)
-          </label>
-          <textarea
-            id="note"
-            rows={3}
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-neutral-400"
-            placeholder="Any details about the pet or stay…"
-          />
-        </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="note">Boarding notes (optional)</Label>
+              <Textarea
+                id="note"
+                rows={3}
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder="What should the owner bring? (medication, favourite toys, food preferences…)"
+              />
+            </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label
-              className="mb-1 block text-sm font-medium"
-              htmlFor="startDate"
-            >
-              Start date <span className="text-red-400">*</span>
-            </label>
-            <input
-              id="startDate"
-              type="date"
-              required
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-neutral-400"
-            />
-          </div>
-          <div>
-            <label
-              className="mb-1 block text-sm font-medium"
-              htmlFor="endDate"
-            >
-              End date (optional)
-            </label>
-            <input
-              id="endDate"
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-neutral-400"
-            />
-          </div>
-        </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="grid gap-1.5">
+                <Label htmlFor="startDate">
+                  Start date <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="startDate"
+                  type="date"
+                  required
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                />
+              </div>
+              <div className="grid gap-1.5">
+                <Label htmlFor="endDate">End date (optional)</Label>
+                <Input
+                  id="endDate"
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                />
+              </div>
+            </div>
 
-        {error && <p className="text-sm text-red-500">{error}</p>}
+            {error && <p className="text-sm text-destructive">{error}</p>}
 
-        <div className="flex gap-3">
-          <button
-            type="submit"
-            disabled={loading}
-            className="flex-1 rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50"
-          >
-            {loading ? "Creating…" : "Create stay"}
-          </button>
-          <a
-            href="/dashboard"
-            className="rounded-lg border border-neutral-200 px-4 py-2.5 text-sm font-medium hover:bg-neutral-50"
-          >
-            Cancel
-          </a>
-        </div>
-      </form>
+            <div className="flex gap-3 pt-1">
+              <Button type="submit" disabled={loading} className="flex-1">
+                {loading ? "Creating…" : "Create stay"}
+              </Button>
+              <a href="/dashboard" className={cn(buttonVariants({ variant: "outline" }))}>
+                Cancel
+              </a>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }

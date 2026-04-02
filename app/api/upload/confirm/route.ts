@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
   } = await supabase.auth.getUser();
   if (!user) return new Response("Unauthorized", { status: 401 });
 
-  const { stay_id, path, caption } = await request.json();
+  const { stay_id, path, caption, type = "photo" } = await request.json();
   if (!stay_id || !path) return new Response("Missing fields", { status: 400 });
 
   // Verify ownership
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
 
   const { data: upload, error } = await supabase
     .from("uploads")
-    .insert({ stay_id, type: "photo", file_url, caption: caption || null })
+    .insert({ stay_id, type, file_url, caption: caption || null })
     .select()
     .single();
 

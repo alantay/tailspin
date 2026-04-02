@@ -131,6 +131,20 @@ create policy "boarder can upload to own stay"
     )
   );
 
+-- Allow boarder to manage their own profile avatar
+-- Path: profiles/{user_id}/avatar.jpg
+create policy "boarder can manage own avatar"
+  on storage.objects for all
+  to authenticated
+  using (
+    bucket_id = 'stay-media'
+    and name like 'profiles/' || auth.uid()::text || '/%'
+  )
+  with check (
+    bucket_id = 'stay-media'
+    and name like 'profiles/' || auth.uid()::text || '/%'
+  );
+
 -- Public read for all files in the bucket
 create policy "public read stay-media"
   on storage.objects for select

@@ -112,7 +112,7 @@ Uploading directly from the client to Supabase Storage avoids routing large file
 
 ## Video Handling (V1)
 
-- Max duration: 30 seconds (enforced client-side)
+- Max duration: 35 seconds (enforced client-side)
 - Max file size: 50MB (enforced client-side after compression)
 - Formats accepted: MP4, MOV (what phone cameras produce)
 - No server-side transcoding — modern phone video plays natively in browsers

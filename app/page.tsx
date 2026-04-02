@@ -14,19 +14,20 @@ export default async function LandingPage() {
     <main className="flex min-h-full flex-col items-center justify-center p-4">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold tracking-tight">Tailspin</h1>
-          <p className="mt-2 text-sm text-neutral-500">
-            Share pet photos freely. Owners check in on their own terms.
+          <p className="text-4xl mb-3">🐾</p>
+          <h1 className="text-3xl font-extrabold tracking-tight">Tailspin</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Upload photos freely. Owners check in on their own terms.
           </p>
         </div>
         <AuthForm mode="login" />
-        <p className="mt-4 text-center text-sm text-neutral-500">
+        <p className="mt-4 text-center text-sm text-muted-foreground">
           No account?{" "}
           <a
             href="/auth/sign-up"
-            className="text-neutral-900 underline underline-offset-4"
+            className="text-foreground font-medium underline underline-offset-4"
           >
-            Sign up
+            Sign up — it&apos;s free
           </a>
         </p>
       </div>

@@ -33,7 +33,7 @@
 - [x] **Upload Management**
   - [x] Edit captions after posting (inline click-to-edit)
   - [x] Delete uploads (removes from DB + storage)
-  - [ ] Reorder uploads *(skipped — optional)*
+  - [ ] Reorder uploads _(skipped — optional)_
 
 - [x] **Boarder Profile**
   - [x] Name and photo displayed on owner feeds
@@ -48,17 +48,27 @@
   - [x] Offline indicator (fixed toast when navigator.onLine = false)
 
 - [x] **Deployment**
-  - [ ] Deployed to Vercel *(manual step — see docs/deployment.md)*
-  - [ ] Custom domain *(optional)*
+  - [ ] Deployed to Vercel _(manual step — see docs/deployment.md)_
+  - [ ] Custom domain _(optional)_
   - [x] Environment variables documented for production
+
+---
+
+## Phase 4: Improvements (In Progress)
+
+New features and refinements based on real usage.
+
+- [ ] Pinned notes — private scratchpad per stay for care instructions
+- [ ] Download button — one-tap save on each photo/video for owners
+- [ ] Download All — bulk download of all photos from a stay (future)
 
 ---
 
 ## Changelog
 
-| Date       | What Changed |
-| ---------- | ------------ |
-| 2026-03-31 | Project started. PRD, ARCHITECTURE, DESIGN docs created. |
+| Date       | What Changed                                                                                                                       |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-03-31 | Project started. PRD, ARCHITECTURE, DESIGN docs created.                                                                           |
 | 2026-03-31 | Phase 1 complete. Next.js + Supabase scaffold, auth, stay management, photo upload, owner feed, shadcn UI with warm design system. |
-| 2026-03-31 | Phase 2 complete. Video upload, per-file progress, mark-as-complete, auto-complete, pull-to-refresh, fade-in animations. |
-| 2026-04-01 | Phase 3 complete. Delete/edit captions, boarder profile, OG meta tags, PWA manifest, offline indicator, deployment docs. |
+| 2026-03-31 | Phase 2 complete. Video upload, per-file progress, mark-as-complete, auto-complete, pull-to-refresh, fade-in animations.           |
+| 2026-04-01 | Phase 3 complete. Delete/edit captions, boarder profile, OG meta tags, PWA manifest, offline indicator, deployment docs.           |

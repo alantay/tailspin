@@ -48,11 +48,16 @@ alter table public.boarders enable row level security;
 alter table public.stays    enable row level security;
 alter table public.uploads  enable row level security;
 
--- boarders: each user can only read/write their own row
+-- boarders: each user can only write their own row
 create policy "boarders: own row only"
   on public.boarders for all
   using  (auth.uid() = id)
   with check (auth.uid() = id);
+
+-- boarders: public read (name + avatar shown on owner feed)
+create policy "boarders: public read"
+  on public.boarders for select
+  using (true);
 
 -- stays: boarder manages their own stays
 create policy "stays: boarder manages"

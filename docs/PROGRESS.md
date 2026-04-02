@@ -58,9 +58,14 @@
 
 New features and refinements based on real usage.
 
-- [ ] Pinned notes — private scratchpad per stay for care instructions
-- [ ] Download button — one-tap save on each photo/video for owners
-- [ ] Download All — bulk download of all photos from a stay (future)
+- [x] **Stay editing** — edit pet name, dates, and boarding notes after creation
+- [x] **UX fixes** — boarding notes repurposed as "what to bring", per-photo captions (removed shared bulk caption), change pet avatar from stay detail
+- [x] **Bug fixes** — owner feed visible in incognito (boarders public read RLS), card top spacing, navbar logo
+- [x] **Dashboard & boarding UX** — bigger pet photo on stay cards (56px), photo preview when creating new boarding
+- [ ] **Dashboard Calendar** — month-view showing stays as coloured bars with pet name; tap to open. Different colours for overlapping stays.
+- [ ] **Pinned notes** — private freeform scratchpad per stay for care instructions, never visible to owner
+- [ ] **Download button** — one-tap save on each photo/video in the owner feed, full-resolution
+- [ ] **Download All** — bulk zip download _(future, not current scope)_
 
 ---
 
@@ -72,3 +77,5 @@ New features and refinements based on real usage.
 | 2026-03-31 | Phase 1 complete. Next.js + Supabase scaffold, auth, stay management, photo upload, owner feed, shadcn UI with warm design system. |
 | 2026-03-31 | Phase 2 complete. Video upload, per-file progress, mark-as-complete, auto-complete, pull-to-refresh, fade-in animations.           |
 | 2026-04-01 | Phase 3 complete. Delete/edit captions, boarder profile, OG meta tags, PWA manifest, offline indicator, deployment docs.           |
+| 2026-04-02 | Phase 4 started. Stay editing, UX overhaul (boarding notes, per-photo captions), bug fixes (incognito feed, card spacing, navbar logo). |
+| 2026-04-02 | Dashboard & boarding UX improvements: bigger pet photo on stay cards (56px for better visibility), photo preview in new boarding form. |

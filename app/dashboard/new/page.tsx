@@ -21,6 +21,7 @@ export default function NewStayPage() {
   );
   const [endDate, setEndDate] = useState("");
   const [petPhotoFile, setPetPhotoFile] = useState<File | null>(null);
+  const [petPhotoPreview, setPetPhotoPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -105,9 +106,20 @@ export default function NewStayPage() {
                 id="petPhoto"
                 type="file"
                 accept="image/*"
-                onChange={(e) => setPetPhotoFile(e.target.files?.[0] ?? null)}
+                onChange={(e) => {
+                  const file = e.target.files?.[0] ?? null;
+                  setPetPhotoFile(file);
+                  setPetPhotoPreview(file ? URL.createObjectURL(file) : null);
+                }}
                 className="cursor-pointer"
               />
+              {petPhotoPreview && (
+                <img
+                  src={petPhotoPreview}
+                  alt="Pet photo preview"
+                  className="mt-2 h-32 w-32 rounded-xl object-cover"
+                />
+              )}
             </div>
 
             <div className="grid gap-1.5">

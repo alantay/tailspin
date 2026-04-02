@@ -39,9 +39,9 @@ export default function StayCard({ stay }: Props) {
     <Card>
       <CardContent className="flex items-center justify-between gap-4 py-4">
         <div className="flex items-center gap-3">
-          <Avatar>
+          <Avatar className="!size-14">
             {stay.pet_photo && <AvatarImage src={stay.pet_photo} alt={stay.pet_name} />}
-            <AvatarFallback className="bg-accent text-lg">
+            <AvatarFallback className="bg-accent text-2xl">
               🐾
             </AvatarFallback>
           </Avatar>

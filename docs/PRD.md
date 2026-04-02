@@ -38,6 +38,14 @@ The boarder shares a link at the start of a stay and says "I'll be posting photo
 - Dashboard showing active stays and past stays
 - Simple profile: name and photo (appears on owner-facing feeds)
 
+### Boarder: Dashboard Calendar
+
+- Month-view calendar showing all stays as coloured horizontal bars spanning their date range
+- Each bar shows the pet name so boarders can see at a glance who is staying when
+- Different colours assigned per stay, chosen to avoid clashes when stays overlap
+- Tapping a bar opens the stay detail page
+- Helps boarders plan availability and spot scheduling conflicts at a glance
+
 ### Boarder: Stay Management
 
 - Create a stay: pet name, optional pet photo, optional note, start/end dates

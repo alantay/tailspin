@@ -23,7 +23,7 @@ export default async function DashboardPage() {
 
   const { data: stays } = await supabase
     .from("stays")
-    .select("*")
+    .select("*, uploads(id, type, created_at)")
     .eq("boarder_id", user!.id)
     .order("created_at", { ascending: false });
 
@@ -49,8 +49,8 @@ export default async function DashboardPage() {
             Active
           </p>
           <div className="flex flex-col gap-2">
-            {active.map((stay: StayRow) => (
-              <StayCard key={stay.id} stay={stay} />
+            {active.map((stay: StayRow & { uploads: { type: string; created_at: string }[] }) => (
+              <StayCard key={stay.id} stay={stay} uploads={stay.uploads ?? []} />
             ))}
           </div>
         </section>
@@ -62,8 +62,8 @@ export default async function DashboardPage() {
             Past stays
           </p>
           <div className="flex flex-col gap-2">
-            {past.map((stay: StayRow) => (
-              <StayCard key={stay.id} stay={stay} />
+            {past.map((stay: StayRow & { uploads: { type: string; created_at: string }[] }) => (
+              <StayCard key={stay.id} stay={stay} uploads={stay.uploads ?? []} />
             ))}
           </div>
         </section>

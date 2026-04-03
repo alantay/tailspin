@@ -65,10 +65,47 @@ New features and refinements based on real usage.
 - [x] **Dashboard Calendar** — month-view showing stays as coloured bars with pet name; tap to open. Different colours for overlapping stays.
 - [x] **Owner name field** — required on every stay, shows on dashboard cards and stay detail page
 - [x] **Delete stay** — inline confirmation to cancel a boarding if owner cancels
+- [x] **Owner phone number** — optional field on stays for future repeat-owner detection
 - [x] **Navigation icons** — Dashboard link in navbar with icons on buttons (Edit, Share, Delete, Mark complete)
-- [ ] **Pinned notes** — private freeform scratchpad per stay for care instructions, never visible to owner
-- [ ] **Download button** — one-tap save on each photo/video in the owner feed, full-resolution
+- [x] **Pinned notes** — private freeform scratchpad per stay (separate DB table with boarder-only RLS), never visible to owner
+- [x] **Download button** — one-tap save on each photo/video, full-resolution (blob fetch to bypass CORS)
+- [x] **Media lightbox** — tap photo to view full-screen; fullscreen button on videos; Escape/backdrop to close
 - [ ] **Download All** — bulk zip download _(future, not current scope)_
+
+---
+
+## Phase 5: Polish & Growth (Backlog)
+
+Improvements and features identified during Phase 4. Prioritised by impact vs effort.
+
+### Quick wins
+- [x] **Upload count on stay cards** — show "8 photos · 2 videos" on each dashboard card
+- [x] **Last activity on stay cards** — shows upload count + last activity time on each card
+- [ ] **Lightbox photo navigation** — prev/next arrows to browse all photos without closing
+- [x] **Reactivate completed stay** — undo accidental "Mark as complete"
+- [ ] **Swipe in lightbox** — swipe left/right to navigate photos on mobile
+
+### Medium effort
+- [ ] **QR code on share page** — one-tap for owners to scan at drop-off instead of texting a URL
+- [ ] **Mobile bottom nav bar** — fixed Dashboard / + New Stay / Profile bar for easier thumb access
+- [x] **Toast notifications** — replace inline loading/copied states with brief toasts (less layout shift)
+- [ ] **Search/filter stays** — filter by pet name or owner name when stay count grows
+
+### Bigger features
+- [ ] **Owner reactions** — let owners heart/react to photos (no account needed, tied to share_token)
+- [ ] **Multi-pet stays** — support sibling pets boarding together under one stay
+- [ ] **Recurring boarders** — quick-create a new stay from a previous one (prefill pet details)
+
+---
+
+## Parked Ideas
+
+Features considered but deferred. Revisit post-V1 based on real usage.
+
+| Idea | Context | Revisit trigger |
+|------|---------|-----------------|
+| Meal/status updates | Owners may want to know if pet finished meals. Decided photo + optional caption covers this for now — avoids adding structured care logging friction. | Owners frequently ask "did they eat?" unprompted |
+| Repeat owner detection | Phone number now captured. Build UI to surface past stays + private owner notes when same number seen. | After enough stays exist to test lookup |
 
 ---
 
@@ -83,3 +120,7 @@ New features and refinements based on real usage.
 | 2026-04-02 | Phase 4 started. Stay editing, UX overhaul (boarding notes, per-photo captions), bug fixes (incognito feed, card spacing, navbar logo). |
 | 2026-04-02 | Dashboard & boarding UX improvements: bigger pet photo on stay cards (56px for better visibility), photo preview in new boarding form. |
 | 2026-04-03 | Dashboard Calendar: month-view with coloured stay bars, smart overlap detection. Owner name field now required. Delete stay with inline confirmation. Navigation icons throughout. |
+| 2026-04-03 | Download button on every photo/video card (blob fetch to bypass CORS, available in both owner and boarder views). |
+| 2026-04-03 | Media lightbox: tap photo for full-screen overlay, fullscreen button on videos, Escape/backdrop/X to close, download in lightbox. |
+| 2026-04-03 | Pinned notes: private scratchpad per stay in separate stay_notes table with boarder-only RLS; click-to-edit with ⌘↵ to save. |
+| 2026-04-03 | Toast notifications: replaced inline "Copied!" / "Saving…" states with sonner toasts on share link copy and media download. |

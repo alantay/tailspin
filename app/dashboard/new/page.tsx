@@ -21,6 +21,7 @@ export default function NewStayPage() {
   );
   const [endDate, setEndDate] = useState("");
   const [ownerName, setOwnerName] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [petPhotoFile, setPetPhotoFile] = useState<File | null>(null);
   const [petPhotoPreview, setPetPhotoPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -46,6 +47,7 @@ export default function NewStayPage() {
           boarder_id: user.id,
           pet_name: petName,
           owner_name: ownerName.trim() || null,
+          phone_number: phoneNumber.trim() || null,
           note: note || null,
           start_date: startDate,
           end_date: endDate || null,
@@ -111,6 +113,17 @@ export default function NewStayPage() {
                 value={ownerName}
                 onChange={(e) => setOwnerName(e.target.value)}
                 placeholder="Jane Smith"
+              />
+            </div>
+
+            <div className="grid gap-1.5">
+              <Label htmlFor="phoneNumber">Owner phone (optional)</Label>
+              <Input
+                id="phoneNumber"
+                type="tel"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                placeholder="+65 9123 4567"
               />
             </div>
 

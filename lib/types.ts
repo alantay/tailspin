@@ -10,6 +10,7 @@ export type StayRow = {
   boarder_id: string;
   pet_name: string;
   owner_name: string | null;
+  phone_number: string | null;
   pet_photo: string | null;
   note: string | null;
   start_date: string;

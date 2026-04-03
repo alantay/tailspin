@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Nunito } from "next/font/google";
+import { Toaster } from "sonner";
 import "./globals.css";
 import OfflineIndicator from "@/components/OfflineIndicator";
 
@@ -30,6 +31,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col antialiased">
         {children}
         <OfflineIndicator />
+        <Toaster position="bottom-center" richColors />
       </body>
     </html>
   );

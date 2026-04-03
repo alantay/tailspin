@@ -13,42 +13,53 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Pencil, Share2, Trash2, CheckCircle } from "lucide-react";
+import { Pencil, Share2, Trash2, CheckCircle, Lock } from "lucide-react";
 import type { StayRow, UploadRow } from "@/lib/types";
+import { toast } from "sonner";
+
+type StayNote = { id: string; content: string; updated_at: string } | null;
 
 export default function StayDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const [stay, setStay] = useState<StayRow | null>(null);
   const [uploads, setUploads] = useState<UploadRow[]>([]);
-  const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(true);
   const [completing, setCompleting] = useState(false);
   const [changingPhoto, setChangingPhoto] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editName, setEditName] = useState("");
   const [editOwnerName, setEditOwnerName] = useState("");
+  const [editPhoneNumber, setEditPhoneNumber] = useState("");
   const [editNote, setEditNote] = useState("");
   const [editStart, setEditStart] = useState("");
   const [editEnd, setEditEnd] = useState("");
   const [savingEdit, setSavingEdit] = useState(false);
+  const [confirmComplete, setConfirmComplete] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [pinnedNote, setPinnedNote] = useState<StayNote>(null);
+  const [editingNote, setEditingNote] = useState(false);
+  const [noteContent, setNoteContent] = useState("");
+  const [savingNote, setSavingNote] = useState(false);
   const petPhotoInputRef = useRef<HTMLInputElement>(null);
+  const noteTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     const supabase = createClient();
     (async () => {
-      const [{ data: stayData }, { data: uploadsData }] = await Promise.all([
+      const [{ data: stayData }, { data: uploadsData }, { data: noteData }] = await Promise.all([
         supabase.from("stays").select("*").eq("id", id).single(),
         supabase
           .from("uploads")
           .select("*")
           .eq("stay_id", id)
           .order("created_at", { ascending: false }),
+        supabase.from("stay_notes").select("*").eq("stay_id", id).maybeSingle(),
       ]);
       setStay(stayData);
       setUploads(uploadsData ?? []);
+      setPinnedNote(noteData);
       setLoading(false);
     })();
   }, [id]);
@@ -97,6 +108,7 @@ export default function StayDetailPage() {
     if (!stay) return;
     setEditName(stay.pet_name);
     setEditOwnerName(stay.owner_name ?? "");
+    setEditPhoneNumber(stay.phone_number ?? "");
     setEditNote(stay.note ?? "");
     setEditStart(stay.start_date);
     setEditEnd(stay.end_date ?? "");
@@ -116,6 +128,7 @@ export default function StayDetailPage() {
       .update({
         pet_name: editName.trim(),
         owner_name: editOwnerName.trim() || null,
+        phone_number: editPhoneNumber.trim() || null,
         note: editNote.trim() || null,
         start_date: editStart,
         end_date: editEnd || null,
@@ -135,8 +148,7 @@ export default function StayDetailPage() {
       await navigator.share({ title: `${stay.pet_name}'s stay`, url });
     } else {
       await navigator.clipboard.writeText(url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      toast.success("Link copied!");
     }
   }
 
@@ -152,6 +164,57 @@ export default function StayDetailPage() {
       .single();
     if (data) setStay(data);
     setCompleting(false);
+    setConfirmComplete(false);
+  }
+
+  async function handleReactivate() {
+    if (!stay) return;
+    const supabase = createClient();
+    const { data } = await supabase
+      .from("stays")
+      .update({ status: "active" })
+      .eq("id", stay.id)
+      .select()
+      .single();
+    if (data) setStay(data);
+  }
+
+  function startEditingNote() {
+    setNoteContent(pinnedNote?.content ?? "");
+    setEditingNote(true);
+    setTimeout(() => noteTextareaRef.current?.focus(), 0);
+  }
+
+  function cancelEditingNote() {
+    setEditingNote(false);
+  }
+
+  async function handleSaveNote() {
+    setSavingNote(true);
+    const supabase = createClient();
+    if (pinnedNote) {
+      const { data } = await supabase
+        .from("stay_notes")
+        .update({ content: noteContent, updated_at: new Date().toISOString() })
+        .eq("id", pinnedNote.id)
+        .select()
+        .single();
+      if (data) setPinnedNote(data);
+    } else {
+      const { data } = await supabase
+        .from("stay_notes")
+        .insert({ stay_id: id, content: noteContent })
+        .select()
+        .single();
+      if (data) setPinnedNote(data);
+    }
+    setSavingNote(false);
+    setEditingNote(false);
+  }
+
+  function handleNoteKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if ((e.metaKey || e.ctrlKey) && e.key === "Enter") handleSaveNote();
+    if (e.key === "Escape") cancelEditingNote();
   }
 
   async function handleDelete() {
@@ -254,6 +317,17 @@ export default function StayDetailPage() {
               </div>
 
               <div className="grid gap-1.5">
+                <Label htmlFor="editPhoneNumber">Owner phone (optional)</Label>
+                <Input
+                  id="editPhoneNumber"
+                  type="tel"
+                  value={editPhoneNumber}
+                  onChange={(e) => setEditPhoneNumber(e.target.value)}
+                  placeholder="+65 9123 4567"
+                />
+              </div>
+
+              <div className="grid gap-1.5">
                 <Label htmlFor="editNote">Boarding notes (optional)</Label>
                 <Textarea
                   id="editNote"
@@ -330,7 +404,7 @@ export default function StayDetailPage() {
                       </Badge>
                     </div>
                     {stay.owner_name && (
-                      <p className="text-xs font-medium text-foreground/70">{stay.owner_name}</p>
+                      <p className="text-xs font-medium text-foreground/70">{stay.owner_name}{stay.phone_number ? ` · ${stay.phone_number}` : ""}</p>
                     )}
                     <p className="text-sm text-muted-foreground">{startFormatted}</p>
                   </div>
@@ -342,7 +416,7 @@ export default function StayDetailPage() {
                   </Button>
                   <Button variant="outline" size="sm" onClick={handleShare} className="gap-1.5">
                     <Share2 className="h-3.5 w-3.5" />
-                    {copied ? "Copied!" : "Share link"}
+                    Share link
                   </Button>
                 </div>
               </div>
@@ -358,19 +432,48 @@ export default function StayDetailPage() {
 
               {stay.status === "active" && (
                 <div className="mt-4 pt-4 border-t border-border">
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    disabled={completing}
-                    onClick={handleMarkComplete}
-                    className="gap-1.5"
-                  >
+                  {confirmComplete ? (
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-medium">Mark this stay as complete?</p>
+                      <Button
+                        size="sm"
+                        disabled={completing}
+                        onClick={handleMarkComplete}
+                        className="gap-1.5"
+                      >
+                        <CheckCircle className="h-3.5 w-3.5" />
+                        {completing ? "Wrapping up…" : "Yes, complete"}
+                      </Button>
+                      <Button variant="outline" size="sm" disabled={completing} onClick={() => setConfirmComplete(false)}>
+                        Cancel
+                      </Button>
+                    </div>
+                  ) : (
+                    <>
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => setConfirmComplete(true)}
+                        className="gap-1.5"
+                      >
+                        <CheckCircle className="h-3.5 w-3.5" />
+                        Mark as complete
+                      </Button>
+                      <p className="mt-1.5 text-xs text-muted-foreground">
+                        That&apos;s a wrap! Another tail well told 🐾
+                      </p>
+                    </>
+                  )}
+                </div>
+              )}
+
+              {stay.status === "completed" && (
+                <div className="mt-4 pt-4 border-t border-border">
+                  <Button variant="secondary" size="sm" onClick={handleReactivate} className="gap-1.5">
                     <CheckCircle className="h-3.5 w-3.5" />
-                    {completing ? "Wrapping up…" : "Mark as complete"}
+                    Reactivate stay
                   </Button>
-                  <p className="mt-1.5 text-xs text-muted-foreground">
-                    That&apos;s a wrap! Another tail well told 🐾
-                  </p>
+                  <p className="mt-1.5 text-xs text-muted-foreground">Pet coming back? We&apos;re always happy to see them again 🐾</p>
                 </div>
               )}
 
@@ -398,6 +501,60 @@ export default function StayDetailPage() {
                 )}
               </div>
             </>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Private notes */}
+      <Card>
+        <CardContent className="pt-5">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+              <Lock className="h-3 w-3" />
+              Private notes
+            </p>
+            {!editingNote && (
+              <Button variant="ghost" size="sm" onClick={startEditingNote} className="gap-1.5 h-7 text-xs">
+                <Pencil className="h-3 w-3" />
+                {pinnedNote?.content ? "Edit" : "Add"}
+              </Button>
+            )}
+          </div>
+
+          {editingNote ? (
+            <div className="flex flex-col gap-2">
+              <Textarea
+                ref={noteTextareaRef}
+                rows={4}
+                value={noteContent}
+                onChange={(e) => setNoteContent(e.target.value)}
+                onKeyDown={handleNoteKeyDown}
+                placeholder="Medication schedule, feeding amounts, emergency contacts…"
+              />
+              <div className="flex items-center gap-2">
+                <Button size="sm" onClick={handleSaveNote} disabled={savingNote} className="gap-1.5">
+                  {savingNote ? "Saving…" : "Save"}
+                </Button>
+                <Button variant="outline" size="sm" onClick={cancelEditingNote} disabled={savingNote}>
+                  Cancel
+                </Button>
+                <p className="text-xs text-muted-foreground ml-auto">⌘↵ to save · Esc to cancel</p>
+              </div>
+            </div>
+          ) : pinnedNote?.content ? (
+            <div>
+              <p className="text-sm whitespace-pre-wrap">{pinnedNote.content}</p>
+              <p className="text-xs text-muted-foreground mt-2">
+                Updated {new Date(pinnedNote.updated_at).toLocaleDateString("en", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
+              </p>
+            </div>
+          ) : (
+            <p
+              className="text-sm text-muted-foreground italic cursor-pointer hover:text-foreground transition-colors"
+              onClick={startEditingNote}
+            >
+              Add private notes…
+            </p>
           )}
         </CardContent>
       </Card>

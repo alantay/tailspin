@@ -9,6 +9,7 @@ export type StayRow = {
   id: string;
   boarder_id: string;
   pet_name: string;
+  owner_name: string | null;
   pet_photo: string | null;
   note: string | null;
   start_date: string;

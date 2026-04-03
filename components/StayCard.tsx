@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { buttonVariants } from "@/lib/button-variants";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { ExternalLink, Share2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -46,7 +47,10 @@ export default function StayCard({ stay }: Props) {
             </AvatarFallback>
           </Avatar>
           <div>
-            <p className="font-semibold">{stay.pet_name}</p>
+            <p className="text-base font-extrabold">{stay.pet_name}</p>
+            {stay.owner_name && (
+              <p className="text-xs font-medium text-foreground/70">{stay.owner_name}</p>
+            )}
             <p className="text-sm text-muted-foreground">
               {startFormatted}{endFormatted ? ` – ${endFormatted}` : ""}
             </p>
@@ -58,12 +62,14 @@ export default function StayCard({ stay }: Props) {
           </Badge>
           <a
             href={`/dashboard/stay/${stay.id}`}
-            className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
+            className={cn(buttonVariants({ variant: "outline", size: "sm" }), "gap-1.5")}
           >
+            <ExternalLink className="h-3.5 w-3.5" />
             Open
           </a>
-          <Button variant="outline" size="sm" onClick={handleShare}>
-            {copied ? "Copied! ✓" : "Share"}
+          <Button variant="outline" size="sm" onClick={handleShare} className="gap-1.5">
+            <Share2 className="h-3.5 w-3.5" />
+            {copied ? "Copied!" : "Share"}
           </Button>
         </div>
       </CardContent>

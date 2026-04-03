@@ -62,7 +62,10 @@ New features and refinements based on real usage.
 - [x] **UX fixes** — boarding notes repurposed as "what to bring", per-photo captions (removed shared bulk caption), change pet avatar from stay detail
 - [x] **Bug fixes** — owner feed visible in incognito (boarders public read RLS), card top spacing, navbar logo
 - [x] **Dashboard & boarding UX** — bigger pet photo on stay cards (56px), photo preview when creating new boarding
-- [ ] **Dashboard Calendar** — month-view showing stays as coloured bars with pet name; tap to open. Different colours for overlapping stays.
+- [x] **Dashboard Calendar** — month-view showing stays as coloured bars with pet name; tap to open. Different colours for overlapping stays.
+- [x] **Owner name field** — required on every stay, shows on dashboard cards and stay detail page
+- [x] **Delete stay** — inline confirmation to cancel a boarding if owner cancels
+- [x] **Navigation icons** — Dashboard link in navbar with icons on buttons (Edit, Share, Delete, Mark complete)
 - [ ] **Pinned notes** — private freeform scratchpad per stay for care instructions, never visible to owner
 - [ ] **Download button** — one-tap save on each photo/video in the owner feed, full-resolution
 - [ ] **Download All** — bulk zip download _(future, not current scope)_
@@ -79,3 +82,4 @@ New features and refinements based on real usage.
 | 2026-04-01 | Phase 3 complete. Delete/edit captions, boarder profile, OG meta tags, PWA manifest, offline indicator, deployment docs.           |
 | 2026-04-02 | Phase 4 started. Stay editing, UX overhaul (boarding notes, per-photo captions), bug fixes (incognito feed, card spacing, navbar logo). |
 | 2026-04-02 | Dashboard & boarding UX improvements: bigger pet photo on stay cards (56px for better visibility), photo preview in new boarding form. |
+| 2026-04-03 | Dashboard Calendar: month-view with coloured stay bars, smart overlap detection. Owner name field now required. Delete stay with inline confirmation. Navigation icons throughout. |

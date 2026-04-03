@@ -20,6 +20,7 @@ export default function NewStayPage() {
     new Date().toISOString().slice(0, 10)
   );
   const [endDate, setEndDate] = useState("");
+  const [ownerName, setOwnerName] = useState("");
   const [petPhotoFile, setPetPhotoFile] = useState<File | null>(null);
   const [petPhotoPreview, setPetPhotoPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -44,6 +45,7 @@ export default function NewStayPage() {
         .insert({
           boarder_id: user.id,
           pet_name: petName,
+          owner_name: ownerName.trim() || null,
           note: note || null,
           start_date: startDate,
           end_date: endDate || null,
@@ -97,6 +99,18 @@ export default function NewStayPage() {
                 value={petName}
                 onChange={(e) => setPetName(e.target.value)}
                 placeholder="Biscuit"
+              />
+            </div>
+
+            <div className="grid gap-1.5">
+              <Label htmlFor="ownerName">Owner name <span className="text-destructive">*</span></Label>
+              <Input
+                id="ownerName"
+                type="text"
+                required
+                value={ownerName}
+                onChange={(e) => setOwnerName(e.target.value)}
+                placeholder="Jane Smith"
               />
             </div>
 

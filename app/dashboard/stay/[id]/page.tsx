@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { resizeImageToJpeg } from "@/lib/utils";
 import UploadZone from "@/components/UploadZone";
@@ -13,10 +13,12 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Pencil, Share2, Trash2, CheckCircle } from "lucide-react";
 import type { StayRow, UploadRow } from "@/lib/types";
 
 export default function StayDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const router = useRouter();
   const [stay, setStay] = useState<StayRow | null>(null);
   const [uploads, setUploads] = useState<UploadRow[]>([]);
   const [copied, setCopied] = useState(false);
@@ -25,10 +27,13 @@ export default function StayDetailPage() {
   const [changingPhoto, setChangingPhoto] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editName, setEditName] = useState("");
+  const [editOwnerName, setEditOwnerName] = useState("");
   const [editNote, setEditNote] = useState("");
   const [editStart, setEditStart] = useState("");
   const [editEnd, setEditEnd] = useState("");
   const [savingEdit, setSavingEdit] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const petPhotoInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -91,6 +96,7 @@ export default function StayDetailPage() {
   function startEditing() {
     if (!stay) return;
     setEditName(stay.pet_name);
+    setEditOwnerName(stay.owner_name ?? "");
     setEditNote(stay.note ?? "");
     setEditStart(stay.start_date);
     setEditEnd(stay.end_date ?? "");
@@ -109,6 +115,7 @@ export default function StayDetailPage() {
       .from("stays")
       .update({
         pet_name: editName.trim(),
+        owner_name: editOwnerName.trim() || null,
         note: editNote.trim() || null,
         start_date: editStart,
         end_date: editEnd || null,
@@ -145,6 +152,21 @@ export default function StayDetailPage() {
       .single();
     if (data) setStay(data);
     setCompleting(false);
+  }
+
+  async function handleDelete() {
+    if (!stay) return;
+    setDeleting(true);
+    const supabase = createClient();
+    // Remove all storage files for this stay (best effort)
+    const { data: files } = await supabase.storage.from("stay-media").list(`stays/${stay.id}`);
+    if (files && files.length > 0) {
+      await supabase.storage
+        .from("stay-media")
+        .remove(files.map((f) => `stays/${stay.id}/${f.name}`));
+    }
+    await supabase.from("stays").delete().eq("id", stay.id);
+    router.push("/dashboard");
   }
 
   if (loading) {
@@ -221,6 +243,17 @@ export default function StayDetailPage() {
               </div>
 
               <div className="grid gap-1.5">
+                <Label htmlFor="editOwnerName">Owner name <span className="text-destructive">*</span></Label>
+                <Input
+                  id="editOwnerName"
+                  required
+                  value={editOwnerName}
+                  onChange={(e) => setEditOwnerName(e.target.value)}
+                  placeholder="Jane Smith"
+                />
+              </div>
+
+              <div className="grid gap-1.5">
                 <Label htmlFor="editNote">Boarding notes (optional)</Label>
                 <Textarea
                   id="editNote"
@@ -254,7 +287,7 @@ export default function StayDetailPage() {
               </div>
 
               <div className="flex gap-2">
-                <Button onClick={handleSaveEdit} disabled={savingEdit || !editName.trim()} className="flex-1">
+                <Button onClick={handleSaveEdit} disabled={savingEdit || !editName.trim() || !editOwnerName.trim()} className="flex-1">
                   {savingEdit ? "Saving…" : "Save changes"}
                 </Button>
                 <Button variant="outline" onClick={cancelEditing} disabled={savingEdit}>
@@ -296,15 +329,20 @@ export default function StayDetailPage() {
                         {stay.status === "active" ? "Active" : "Done"}
                       </Badge>
                     </div>
+                    {stay.owner_name && (
+                      <p className="text-xs font-medium text-foreground/70">{stay.owner_name}</p>
+                    )}
                     <p className="text-sm text-muted-foreground">{startFormatted}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="sm" onClick={startEditing}>
+                  <Button variant="ghost" size="sm" onClick={startEditing} className="gap-1.5">
+                    <Pencil className="h-3.5 w-3.5" />
                     Edit
                   </Button>
-                  <Button variant="outline" size="sm" onClick={handleShare}>
-                    {copied ? "Link copied! ✓" : "Share link"}
+                  <Button variant="outline" size="sm" onClick={handleShare} className="gap-1.5">
+                    <Share2 className="h-3.5 w-3.5" />
+                    {copied ? "Copied!" : "Share link"}
                   </Button>
                 </div>
               </div>
@@ -325,7 +363,9 @@ export default function StayDetailPage() {
                     size="sm"
                     disabled={completing}
                     onClick={handleMarkComplete}
+                    className="gap-1.5"
                   >
+                    <CheckCircle className="h-3.5 w-3.5" />
                     {completing ? "Wrapping up…" : "Mark as complete"}
                   </Button>
                   <p className="mt-1.5 text-xs text-muted-foreground">
@@ -333,6 +373,30 @@ export default function StayDetailPage() {
                   </p>
                 </div>
               )}
+
+              <div className="mt-4 pt-4 border-t border-border">
+                {confirmDelete ? (
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm text-destructive font-medium">Delete this stay?</p>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      disabled={deleting}
+                      onClick={handleDelete}
+                    >
+                      {deleting ? "Deleting…" : "Yes, delete"}
+                    </Button>
+                    <Button variant="outline" size="sm" disabled={deleting} onClick={() => setConfirmDelete(false)}>
+                      Cancel
+                    </Button>
+                  </div>
+                ) : (
+                  <Button variant="ghost" size="sm" className="gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => setConfirmDelete(true)}>
+                    <Trash2 className="h-3.5 w-3.5" />
+                    Delete stay
+                  </Button>
+                )}
+              </div>
             </>
           )}
         </CardContent>

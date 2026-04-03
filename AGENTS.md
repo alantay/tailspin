@@ -95,4 +95,9 @@ Always call `supabase.auth.getUser()` (not `getSession()`) for server-side auth 
 
 ## Workflow
 
-- After completing any task, update docs/PROGRESS.md to check off finished items and add a changelog entry.
+After completing any task:
+
+1. Open `docs/PROGRESS.md`
+2. Check off any completed items (change `[ ]` to `[x]`)
+3. Append a row to the Changelog table: `| YYYY-MM-DD | Brief description of what changed |`
+   Do this without being asked — it is part of every task.

@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import StayCard from "@/components/StayCard";
+import DashboardCalendar from "@/components/DashboardCalendar";
 import { buttonVariants } from "@/lib/button-variants";
 import { cn } from "@/lib/utils";
 import type { StayRow } from "@/lib/types";
@@ -36,6 +37,10 @@ export default async function DashboardPage() {
         <a href="/dashboard/new" className={buttonVariants()}>
           + New stay
         </a>
+      </div>
+
+      <div className="mt-6">
+        <DashboardCalendar stays={stays ?? []} />
       </div>
 
       {active.length > 0 && (

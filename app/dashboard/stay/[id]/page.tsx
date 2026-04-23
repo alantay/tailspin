@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { resizeImageToJpeg } from "@/lib/utils";
 import UploadZone from "@/components/UploadZone";
 import MediaCard from "@/components/MediaCard";
+import PottyLogSection from "@/components/PottyLogSection";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -13,17 +14,41 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Pencil, Share2, Trash2, CheckCircle, Lock } from "lucide-react";
-import type { StayRow, UploadRow } from "@/lib/types";
+import { Pencil, Share2, Trash2, CheckCircle, Lock, CalendarPlus } from "lucide-react";
+import type { StayRow, UploadRow, PottyLogRow } from "@/lib/types";
 import { toast } from "sonner";
+import { buttonVariants } from "@/lib/button-variants";
+import { cn } from "@/lib/utils";
 
 type StayNote = { id: string; content: string; updated_at: string } | null;
+
+function buildGoogleCalendarUrl(stay: StayRow): string {
+  const fmt = (iso: string) => iso.replace(/-/g, "");
+  const start = fmt(stay.start_date);
+  const endRaw = stay.end_date ?? stay.start_date;
+  const endDate = new Date(endRaw);
+  endDate.setDate(endDate.getDate() + 1);
+  const end = fmt(endDate.toISOString().slice(0, 10));
+  const details = [
+    stay.owner_name ? `Owner: ${stay.owner_name}` : "",
+    stay.phone_number ? `Phone: ${stay.phone_number}` : "",
+    stay.note ? `Notes: ${stay.note}` : "",
+  ].filter(Boolean).join("\n");
+  const params = new URLSearchParams({
+    action: "TEMPLATE",
+    text: `${stay.pet_name} boarding`,
+    dates: `${start}/${end}`,
+    ...(details ? { details } : {}),
+  });
+  return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
 
 export default function StayDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const [stay, setStay] = useState<StayRow | null>(null);
   const [uploads, setUploads] = useState<UploadRow[]>([]);
+  const [pottyLogs, setPottyLogs] = useState<PottyLogRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [completing, setCompleting] = useState(false);
   const [changingPhoto, setChangingPhoto] = useState(false);
@@ -48,7 +73,7 @@ export default function StayDetailPage() {
   useEffect(() => {
     const supabase = createClient();
     (async () => {
-      const [{ data: stayData }, { data: uploadsData }, { data: noteData }] = await Promise.all([
+      const [{ data: stayData }, { data: uploadsData }, { data: noteData }, { data: pottyLogsData }] = await Promise.all([
         supabase.from("stays").select("*").eq("id", id).single(),
         supabase
           .from("uploads")
@@ -56,10 +81,16 @@ export default function StayDetailPage() {
           .eq("stay_id", id)
           .order("created_at", { ascending: false }),
         supabase.from("stay_notes").select("*").eq("stay_id", id).maybeSingle(),
+        supabase
+          .from("potty_logs")
+          .select("*")
+          .eq("stay_id", id)
+          .order("created_at", { ascending: false }),
       ]);
       setStay(stayData);
       setUploads(uploadsData ?? []);
       setPinnedNote(noteData);
+      setPottyLogs(pottyLogsData ?? []);
       setLoading(false);
     })();
   }, [id]);
@@ -418,6 +449,15 @@ export default function StayDetailPage() {
                     <Share2 className="h-3.5 w-3.5" />
                     Share link
                   </Button>
+                  <a
+                    href={buildGoogleCalendarUrl(stay)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={cn(buttonVariants({ variant: "outline", size: "sm" }), "gap-1.5")}
+                  >
+                    <CalendarPlus className="h-3.5 w-3.5" />
+                    Add to Calendar
+                  </a>
                 </div>
               </div>
 
@@ -558,6 +598,13 @@ export default function StayDetailPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Potty log */}
+      <PottyLogSection
+        stayId={stay.id}
+        initialLogs={pottyLogs}
+        stayActive={stay.status === "active"}
+      />
 
       {/* Upload section — only for active stays */}
       {stay.status === "active" && (

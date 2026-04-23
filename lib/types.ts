@@ -30,6 +30,13 @@ export type UploadRow = {
   created_at: string;
 };
 
+export type PottyLogRow = {
+  id: string;
+  stay_id: string;
+  event_type: "pee" | "poop";
+  created_at: string;
+};
+
 export type StayWithBoarder = StayRow & {
   boarders: Pick<BoarderRow, "name" | "avatar_url">;
 };

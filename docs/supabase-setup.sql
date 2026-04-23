@@ -39,14 +39,24 @@ create table public.uploads (
 
 create index uploads_stay_id_idx on public.uploads(stay_id);
 
+create table public.potty_logs (
+  id          uuid primary key default gen_random_uuid(),
+  stay_id     uuid not null references public.stays(id) on delete cascade,
+  event_type  text not null check (event_type in ('pee','poop')),
+  created_at  timestamptz not null default now()
+);
+
+create index potty_logs_stay_id_idx on public.potty_logs(stay_id);
+
 
 -- ============================================================
 -- ROW LEVEL SECURITY
 -- ============================================================
 
-alter table public.boarders enable row level security;
-alter table public.stays    enable row level security;
-alter table public.uploads  enable row level security;
+alter table public.boarders    enable row level security;
+alter table public.stays       enable row level security;
+alter table public.uploads     enable row level security;
+alter table public.potty_logs  enable row level security;
 
 -- boarders: each user can only write their own row
 create policy "boarders: own row only"
@@ -88,6 +98,20 @@ create policy "uploads: boarder manages via stay"
 create policy "uploads: public read"
   on public.uploads for select
   using (true);
+
+-- potty_logs: boarder manages logs for their own stays (NO public read — boarder-only feature)
+create policy "potty_logs: boarder manages via stay"
+  on public.potty_logs for all
+  using  (exists (
+    select 1 from public.stays
+    where stays.id = potty_logs.stay_id
+      and stays.boarder_id = auth.uid()
+  ))
+  with check (exists (
+    select 1 from public.stays
+    where stays.id = potty_logs.stay_id
+      and stays.boarder_id = auth.uid()
+  ));
 
 
 -- ============================================================

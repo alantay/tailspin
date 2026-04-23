@@ -70,6 +70,7 @@ New features and refinements based on real usage.
 - [x] **Pinned notes** — private freeform scratchpad per stay (separate DB table with boarder-only RLS), never visible to owner
 - [x] **Download button** — one-tap save on each photo/video, full-resolution (blob fetch to bypass CORS)
 - [x] **Media lightbox** — tap photo to view full-screen; fullscreen button on videos; Escape/backdrop to close
+- [x] **Potty log** — one-tap pee/poop timestamp logging (boarder-only), with "last pee / last poop" summary and timeline grouped by day; helps sitters time the next break
 - [ ] **Download All** — bulk zip download _(future, not current scope)_
 
 ---
@@ -87,6 +88,7 @@ Improvements and features identified during Phase 4. Prioritised by impact vs ef
 
 ### Medium effort
 - [ ] **QR code on share page** — one-tap for owners to scan at drop-off instead of texting a URL
+- [x] **Add to Google Calendar** — one-tap button on stay detail page to create a pre-filled calendar event (no API key, URL scheme)
 - [ ] **Mobile bottom nav bar** — fixed Dashboard / + New Stay / Profile bar for easier thumb access
 - [x] **Toast notifications** — replace inline loading/copied states with brief toasts (less layout shift)
 - [ ] **Search/filter stays** — filter by pet name or owner name when stay count grows
@@ -124,3 +126,6 @@ Features considered but deferred. Revisit post-V1 based on real usage.
 | 2026-04-03 | Media lightbox: tap photo for full-screen overlay, fullscreen button on videos, Escape/backdrop/X to close, download in lightbox. |
 | 2026-04-03 | Pinned notes: private scratchpad per stay in separate stay_notes table with boarder-only RLS; click-to-edit with ⌘↵ to save. |
 | 2026-04-03 | Toast notifications: replaced inline "Copied!" / "Saving…" states with sonner toasts on share link copy and media download. |
+| 2026-04-03 | Add to Google Calendar button on stay detail page — opens pre-filled event via URL scheme, no API key required. |
+| 2026-04-22 | Potty log: new `potty_logs` table (boarder-only RLS), one-tap pee/poop buttons on stay detail, "last pee / last poop" summary + day-grouped timeline with delete. |
+| 2026-04-23 | Potty log refinements and Google Calendar integration: PottyLogSection fully integrated into stay detail, add-to-calendar button with pre-filled event details. |

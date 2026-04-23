@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import AuthForm from "@/components/AuthForm";
+import Image from "next/image";
 
 export default async function SignUpPage() {
   const supabase = await createClient();
@@ -14,7 +15,7 @@ export default async function SignUpPage() {
     <main className="flex min-h-full flex-col items-center justify-center p-4">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <p className="text-4xl mb-3">🐶</p>
+          <Image src="/logo.png" alt="Tailspin" width={72} height={72} className="mx-auto mb-3" priority />
           <h1 className="text-3xl font-extrabold tracking-tight">Join Tailspin</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             Your future furry guests are out there somewhere.

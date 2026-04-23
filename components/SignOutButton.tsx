@@ -16,9 +16,9 @@ export default function SignOutButton() {
   }
 
   return (
-    <Button variant="ghost" size="sm" onClick={handleSignOut} className="gap-1.5">
+    <Button variant="ghost" size="sm" onClick={handleSignOut} className="gap-1.5 p-1.5" title="Sign out">
       <LogOut className="h-4 w-4" />
-      Sign out
+      <span className="hidden sm:inline">Sign out</span>
     </Button>
   );
 }

@@ -129,3 +129,4 @@ Features considered but deferred. Revisit post-V1 based on real usage.
 | 2026-04-03 | Add to Google Calendar button on stay detail page — opens pre-filled event via URL scheme, no API key required. |
 | 2026-04-22 | Potty log: new `potty_logs` table (boarder-only RLS), one-tap pee/poop buttons on stay detail, "last pee / last poop" summary + day-grouped timeline with delete. |
 | 2026-04-23 | Potty log refinements and Google Calendar integration: PottyLogSection fully integrated into stay detail, add-to-calendar button with pre-filled event details. |
+| 2026-04-23 | Responsive navbar: icon-only on mobile (< 640px), full text visible on sm+ screens. Fixes crowding on iPhone SE / XR. |

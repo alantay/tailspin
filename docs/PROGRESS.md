@@ -71,6 +71,7 @@ New features and refinements based on real usage.
 - [x] **Download button** — one-tap save on each photo/video, full-resolution (blob fetch to bypass CORS)
 - [x] **Media lightbox** — tap photo to view full-screen; fullscreen button on videos; Escape/backdrop to close
 - [x] **Potty log** — one-tap pee/poop timestamp logging (boarder-only), with "last pee / last poop" summary and timeline grouped by day; helps sitters time the next break
+- [x] **Meal schedule + log** — free-text `meal_schedule` reminder on stay (captures times + food mixture), plus boarder-only `meal_logs` table with optional "what they ate" text per entry
 - [ ] **Download All** — bulk zip download _(future, not current scope)_
 
 ---
@@ -130,3 +131,4 @@ Features considered but deferred. Revisit post-V1 based on real usage.
 | 2026-04-22 | Potty log: new `potty_logs` table (boarder-only RLS), one-tap pee/poop buttons on stay detail, "last pee / last poop" summary + day-grouped timeline with delete. |
 | 2026-04-23 | Potty log refinements and Google Calendar integration: PottyLogSection fully integrated into stay detail, add-to-calendar button with pre-filled event details. |
 | 2026-04-23 | Responsive navbar: icon-only on mobile (< 640px), full text visible on sm+ screens. Fixes crowding on iPhone SE / XR. |
+| 2026-04-24 | Meal schedule + log: new `meal_schedule` text field on stays (times + food mixture reminder), new `meal_logs` table (boarder-only RLS) with single "Log meal" button and optional "what they ate" text; timeline grouped by day. |

@@ -16,6 +16,7 @@ export default function NewStayPage() {
   const router = useRouter();
   const [petName, setPetName] = useState("");
   const [note, setNote] = useState("");
+  const [mealSchedule, setMealSchedule] = useState("");
   const [startDate, setStartDate] = useState(
     new Date().toISOString().slice(0, 10)
   );
@@ -49,6 +50,7 @@ export default function NewStayPage() {
           owner_name: ownerName.trim() || null,
           phone_number: phoneNumber.trim() || null,
           note: note || null,
+          meal_schedule: mealSchedule.trim() || null,
           start_date: startDate,
           end_date: endDate || null,
           status: "active",
@@ -157,6 +159,17 @@ export default function NewStayPage() {
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 placeholder="What should the owner bring? (medication, favourite toys, food preferences…)"
+              />
+            </div>
+
+            <div className="grid gap-1.5">
+              <Label htmlFor="mealSchedule">Meal schedule (optional)</Label>
+              <Textarea
+                id="mealSchedule"
+                rows={3}
+                value={mealSchedule}
+                onChange={(e) => setMealSchedule(e.target.value)}
+                placeholder="8am: 1 cup kibbles + wet food / 6pm: rice with minced meat"
               />
             </div>
 

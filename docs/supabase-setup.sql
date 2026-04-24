@@ -17,6 +17,7 @@ create table public.stays (
   pet_name     text not null,
   pet_photo    text,
   note         text,
+  meal_schedule text,
   start_date   date not null,
   end_date     date,
   status       text not null default 'active' check (status in ('active','completed')),
@@ -48,6 +49,15 @@ create table public.potty_logs (
 
 create index potty_logs_stay_id_idx on public.potty_logs(stay_id);
 
+create table public.meal_logs (
+  id          uuid primary key default gen_random_uuid(),
+  stay_id     uuid not null references public.stays(id) on delete cascade,
+  food        text,
+  created_at  timestamptz not null default now()
+);
+
+create index meal_logs_stay_id_idx on public.meal_logs(stay_id);
+
 
 -- ============================================================
 -- ROW LEVEL SECURITY
@@ -57,6 +67,7 @@ alter table public.boarders    enable row level security;
 alter table public.stays       enable row level security;
 alter table public.uploads     enable row level security;
 alter table public.potty_logs  enable row level security;
+alter table public.meal_logs   enable row level security;
 
 -- boarders: each user can only write their own row
 create policy "boarders: own row only"
@@ -110,6 +121,20 @@ create policy "potty_logs: boarder manages via stay"
   with check (exists (
     select 1 from public.stays
     where stays.id = potty_logs.stay_id
+      and stays.boarder_id = auth.uid()
+  ));
+
+-- meal_logs: boarder manages logs for their own stays (NO public read — boarder-only feature)
+create policy "meal_logs: boarder manages via stay"
+  on public.meal_logs for all
+  using  (exists (
+    select 1 from public.stays
+    where stays.id = meal_logs.stay_id
+      and stays.boarder_id = auth.uid()
+  ))
+  with check (exists (
+    select 1 from public.stays
+    where stays.id = meal_logs.stay_id
       and stays.boarder_id = auth.uid()
   ));
 

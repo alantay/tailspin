@@ -13,6 +13,7 @@ export type StayRow = {
   phone_number: string | null;
   pet_photo: string | null;
   note: string | null;
+  meal_schedule: string | null;
   start_date: string;
   end_date: string | null;
   status: "active" | "completed";
@@ -34,6 +35,13 @@ export type PottyLogRow = {
   id: string;
   stay_id: string;
   event_type: "pee" | "poop";
+  created_at: string;
+};
+
+export type MealLogRow = {
+  id: string;
+  stay_id: string;
+  food: string | null;
   created_at: string;
 };
 

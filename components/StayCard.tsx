@@ -34,45 +34,47 @@ export default function StayCard({ stay, uploads = [] }: Props) {
     ? new Date(stay.end_date).toLocaleDateString("en", { month: "short", day: "numeric" })
     : null;
 
+  const photos = uploads.filter(u => u.type === "photo").length;
+  const videos = uploads.filter(u => u.type === "video").length;
+  const uploadParts = [
+    photos > 0 ? `${photos} photo${photos !== 1 ? "s" : ""}` : "",
+    videos > 0 ? `${videos} video${videos !== 1 ? "s" : ""}` : "",
+  ].filter(Boolean).join(" · ");
+  const latest = uploads.length > 0
+    ? uploads.reduce((a, b) => a.created_at > b.created_at ? a : b)
+    : null;
+  const latestIso = latest?.created_at?.replace(" ", "T");
+  const timeLabel = latestIso && !isNaN(new Date(latestIso).getTime())
+    ? relativeTime(latestIso)
+    : null;
+
   return (
     <Card>
-      <CardContent className="flex items-center justify-between gap-4 py-4">
+      <CardContent className="flex flex-col gap-3 py-4">
+        {/* Row 1: avatar + info */}
         <div className="flex items-center gap-3">
-          <Avatar className="!size-14">
+          <Avatar className="!size-14 shrink-0">
             {stay.pet_photo && <AvatarImage src={stay.pet_photo} alt={stay.pet_name} />}
-            <AvatarFallback className="bg-accent text-2xl">
-              🐾
-            </AvatarFallback>
+            <AvatarFallback className="bg-accent text-2xl">🐾</AvatarFallback>
           </Avatar>
-          <div>
-            <p className="text-base font-extrabold">{stay.pet_name}</p>
+          <div className="min-w-0">
+            <p className="text-base font-extrabold truncate">{stay.pet_name}</p>
             {stay.owner_name && (
-              <p className="text-xs font-medium text-foreground/70">{stay.owner_name}</p>
+              <p className="text-xs font-medium text-foreground/70 truncate">{stay.owner_name}</p>
             )}
             <p className="text-sm text-muted-foreground">
               {startFormatted}{endFormatted ? ` – ${endFormatted}` : ""}
             </p>
-            {uploads.length > 0 && (() => {
-              const photos = uploads.filter(u => u.type === "photo").length;
-              const videos = uploads.filter(u => u.type === "video").length;
-              const parts = [
-                photos > 0 ? `${photos} photo${photos !== 1 ? "s" : ""}` : "",
-                videos > 0 ? `${videos} video${videos !== 1 ? "s" : ""}` : "",
-              ].filter(Boolean).join(" · ");
-              const latest = uploads.reduce((a, b) => a.created_at > b.created_at ? a : b);
-              const latestIso = latest.created_at?.replace(" ", "T");
-              const timeLabel = latestIso && !isNaN(new Date(latestIso).getTime())
-                ? relativeTime(latestIso)
-                : null;
-              return (
-                <p className="text-xs text-muted-foreground/70 mt-0.5">
-                  {parts}{timeLabel ? ` · ${timeLabel}` : ""}
-                </p>
-              );
-            })()}
+            {uploads.length > 0 && (
+              <p className="text-xs text-muted-foreground/70 mt-0.5">
+                {uploadParts}{timeLabel ? ` · ${timeLabel}` : ""}
+              </p>
+            )}
           </div>
         </div>
-        <div className="flex items-center gap-2">
+
+        {/* Row 2: status badge + action buttons */}
+        <div className="flex items-center gap-2 pl-1">
           <Badge variant={stay.status === "active" ? "default" : "secondary"}>
             {stay.status === "active" ? "Active" : "Done"}
           </Badge>

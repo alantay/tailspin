@@ -52,7 +52,6 @@ create index potty_logs_stay_id_idx on public.potty_logs(stay_id);
 create table public.meal_logs (
   id          uuid primary key default gen_random_uuid(),
   stay_id     uuid not null references public.stays(id) on delete cascade,
-  food        text,
   created_at  timestamptz not null default now()
 );
 

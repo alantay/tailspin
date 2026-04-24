@@ -132,3 +132,4 @@ Features considered but deferred. Revisit post-V1 based on real usage.
 | 2026-04-23 | Potty log refinements and Google Calendar integration: PottyLogSection fully integrated into stay detail, add-to-calendar button with pre-filled event details. |
 | 2026-04-23 | Responsive navbar: icon-only on mobile (< 640px), full text visible on sm+ screens. Fixes crowding on iPhone SE / XR. |
 | 2026-04-24 | Meal schedule + log: new `meal_schedule` text field on stays (times + food mixture reminder), new `meal_logs` table (boarder-only RLS) with single "Log meal" button and optional "what they ate" text; timeline grouped by day. |
+| 2026-04-24 | Log refinements: editable timestamps on potty + meal logs (click the time → datetime-local input, save on blur/Enter). Dropped "what they ate" field from meal log (kept simple: one-tap). Stay detail header buttons stack on mobile so Share button no longer clips. |

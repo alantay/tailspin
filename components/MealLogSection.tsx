@@ -17,35 +17,32 @@ type Props = {
 export default function MealLogSection({ stayId, initialLogs, stayActive }: Props) {
   const [logs, setLogs] = useState(initialLogs);
   const [logging, setLogging] = useState(false);
-  const [foodInput, setFoodInput] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editTime, setEditTime] = useState("");
 
   const lastMeal = logs[0];
 
   async function handleLog() {
-    const food = foodInput.trim() || null;
     setLogging(true);
     const tempId = `temp-${Date.now()}`;
     const optimistic: MealLogRow = {
       id: tempId,
       stay_id: stayId,
-      food,
       created_at: new Date().toISOString(),
     };
     setLogs((prev) => [optimistic, ...prev]);
-    setFoodInput("");
 
     try {
       const res = await fetch("/api/meal-log", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ stay_id: stayId, food }),
+        body: JSON.stringify({ stay_id: stayId }),
       });
       if (!res.ok) throw new Error(await res.text());
       const saved: MealLogRow = await res.json();
       setLogs((prev) => prev.map((l) => (l.id === tempId ? saved : l)));
     } catch {
       setLogs((prev) => prev.filter((l) => l.id !== tempId));
-      setFoodInput(food ?? "");
       toast.error("Couldn't log that — try again");
     } finally {
       setLogging(false);
@@ -63,6 +60,31 @@ export default function MealLogSection({ stayId, initialLogs, stayActive }: Prop
     }
   }
 
+  function startEdit(log: MealLogRow) {
+    setEditingId(log.id);
+    setEditTime(toDatetimeLocal(log.created_at));
+  }
+
+  async function saveEdit() {
+    if (!editingId || !editTime) return;
+    const newIso = new Date(editTime).toISOString();
+    const snapshot = logs;
+    setLogs((prev) =>
+      sortLogs(prev.map((l) => (l.id === editingId ? { ...l, created_at: newIso } : l)))
+    );
+    setEditingId(null);
+
+    const res = await fetch(`/api/meal-log/${editingId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ created_at: newIso }),
+    });
+    if (!res.ok) {
+      setLogs(snapshot);
+      toast.error("Couldn't update time");
+    }
+  }
+
   const grouped = groupByDay(logs);
 
   return (
@@ -74,42 +96,18 @@ export default function MealLogSection({ stayId, initialLogs, stayActive }: Prop
 
         <div className="text-sm mb-4">
           <p className="text-xs text-muted-foreground">Last meal</p>
-          <p className="font-medium">
-            {lastMeal ? (
-              <>
-                {relativeTime(lastMeal.created_at)}
-                {lastMeal.food && <span className="text-muted-foreground font-normal"> · {lastMeal.food}</span>}
-              </>
-            ) : (
-              "—"
-            )}
-          </p>
+          <p className="font-medium">{lastMeal ? relativeTime(lastMeal.created_at) : "—"}</p>
         </div>
 
         {stayActive && (
-          <div className="flex gap-2 mb-4">
-            <Input
-              value={foodInput}
-              onChange={(e) => setFoodInput(e.target.value)}
-              placeholder="what they ate? (optional)"
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !logging) {
-                  e.preventDefault();
-                  handleLog();
-                }
-              }}
-              disabled={logging}
-              className="flex-1"
-            />
-            <Button
-              variant="outline"
-              onClick={handleLog}
-              disabled={logging}
-              className="h-10 shrink-0"
-            >
-              🍽️ Log meal
-            </Button>
-          </div>
+          <Button
+            variant="outline"
+            onClick={handleLog}
+            disabled={logging}
+            className="h-12 w-full text-base mb-4"
+          >
+            🍽️ Log meal
+          </Button>
         )}
 
         {logs.length > 0 ? (
@@ -120,12 +118,29 @@ export default function MealLogSection({ stayId, initialLogs, stayActive }: Prop
                 <ul className="space-y-1">
                   {entries.map((log) => (
                     <li key={log.id} className="flex items-center gap-3 text-sm">
-                      <span className="text-muted-foreground tabular-nums w-12">
-                        {formatTime(log.created_at)}
-                      </span>
-                      <span className="flex-1 min-w-0 truncate">
-                        🍽️ {log.food || <span className="text-muted-foreground">Fed</span>}
-                      </span>
+                      {editingId === log.id ? (
+                        <Input
+                          type="datetime-local"
+                          value={editTime}
+                          onChange={(e) => setEditTime(e.target.value)}
+                          onBlur={saveEdit}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") saveEdit();
+                            if (e.key === "Escape") setEditingId(null);
+                          }}
+                          autoFocus
+                          className="h-7 text-xs w-auto flex-1"
+                        />
+                      ) : (
+                        <button
+                          className="text-muted-foreground tabular-nums w-12 text-left hover:text-foreground hover:underline"
+                          onClick={() => startEdit(log)}
+                          title="Edit time"
+                        >
+                          {formatTime(log.created_at)}
+                        </button>
+                      )}
+                      {editingId !== log.id && <span className="flex-1">🍽️ Fed</span>}
                       <Button
                         variant="ghost"
                         size="sm"
@@ -147,6 +162,16 @@ export default function MealLogSection({ stayId, initialLogs, stayActive }: Prop
       </CardContent>
     </Card>
   );
+}
+
+function sortLogs(logs: MealLogRow[]) {
+  return [...logs].sort((a, b) => b.created_at.localeCompare(a.created_at));
+}
+
+function toDatetimeLocal(iso: string): string {
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
 function groupByDay(logs: MealLogRow[]) {

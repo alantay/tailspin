@@ -431,7 +431,7 @@ export default function StayDetailPage() {
             </div>
           ) : (
             <>
-              <div className="flex items-start justify-between gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
                 <div className="flex items-center gap-3">
                   <button
                     className="relative group shrink-0"
@@ -469,7 +469,7 @@ export default function StayDetailPage() {
                     <p className="text-sm text-muted-foreground">{startFormatted}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <Button variant="ghost" size="sm" onClick={startEditing} className="gap-1.5">
                     <Pencil className="h-3.5 w-3.5" />
                     Edit

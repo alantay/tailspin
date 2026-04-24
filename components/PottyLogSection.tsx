@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { relativeTime } from "@/lib/utils";
 import { toast } from "sonner";
 import type { PottyLogRow } from "@/lib/types";
@@ -16,6 +17,8 @@ type Props = {
 export default function PottyLogSection({ stayId, initialLogs, stayActive }: Props) {
   const [logs, setLogs] = useState(initialLogs);
   const [logging, setLogging] = useState<"pee" | "poop" | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editTime, setEditTime] = useState("");
 
   const lastPee = logs.find((l) => l.event_type === "pee");
   const lastPoop = logs.find((l) => l.event_type === "poop");
@@ -56,6 +59,31 @@ export default function PottyLogSection({ stayId, initialLogs, stayActive }: Pro
     if (!res.ok) {
       setLogs(snapshot);
       toast.error("Couldn't delete");
+    }
+  }
+
+  function startEdit(log: PottyLogRow) {
+    setEditingId(log.id);
+    setEditTime(toDatetimeLocal(log.created_at));
+  }
+
+  async function saveEdit() {
+    if (!editingId || !editTime) return;
+    const newIso = new Date(editTime).toISOString();
+    const snapshot = logs;
+    setLogs((prev) =>
+      sortLogs(prev.map((l) => (l.id === editingId ? { ...l, created_at: newIso } : l)))
+    );
+    setEditingId(null);
+
+    const res = await fetch(`/api/potty-log/${editingId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ created_at: newIso }),
+    });
+    if (!res.ok) {
+      setLogs(snapshot);
+      toast.error("Couldn't update time");
     }
   }
 
@@ -108,14 +136,35 @@ export default function PottyLogSection({ stayId, initialLogs, stayActive }: Pro
                 <ul className="space-y-1">
                   {entries.map((log) => (
                     <li key={log.id} className="flex items-center gap-3 text-sm">
-                      <span className="text-muted-foreground tabular-nums w-12">
-                        {formatTime(log.created_at)}
-                      </span>
-                      <span>{log.event_type === "pee" ? "💧 Pee" : "💩 Poop"}</span>
+                      {editingId === log.id ? (
+                        <Input
+                          type="datetime-local"
+                          value={editTime}
+                          onChange={(e) => setEditTime(e.target.value)}
+                          onBlur={saveEdit}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") saveEdit();
+                            if (e.key === "Escape") setEditingId(null);
+                          }}
+                          autoFocus
+                          className="h-7 text-xs w-auto flex-1"
+                        />
+                      ) : (
+                        <button
+                          className="text-muted-foreground tabular-nums w-12 text-left hover:text-foreground hover:underline"
+                          onClick={() => startEdit(log)}
+                          title="Edit time"
+                        >
+                          {formatTime(log.created_at)}
+                        </button>
+                      )}
+                      {editingId !== log.id && (
+                        <span className="flex-1">{log.event_type === "pee" ? "💧 Pee" : "💩 Poop"}</span>
+                      )}
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="h-6 w-6 p-0 ml-auto text-muted-foreground hover:text-destructive"
+                        className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive shrink-0"
                         onClick={() => handleDelete(log.id)}
                         title="Delete"
                       >
@@ -133,6 +182,16 @@ export default function PottyLogSection({ stayId, initialLogs, stayActive }: Pro
       </CardContent>
     </Card>
   );
+}
+
+function sortLogs(logs: PottyLogRow[]) {
+  return [...logs].sort((a, b) => b.created_at.localeCompare(a.created_at));
+}
+
+function toDatetimeLocal(iso: string): string {
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
 function groupByDay(logs: PottyLogRow[]) {

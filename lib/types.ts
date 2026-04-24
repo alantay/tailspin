@@ -41,7 +41,6 @@ export type PottyLogRow = {
 export type MealLogRow = {
   id: string;
   stay_id: string;
-  food: string | null;
   created_at: string;
 };
 

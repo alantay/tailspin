@@ -152,7 +152,7 @@ export default function NewStayPage() {
             </div>
 
             <div className="grid gap-1.5">
-              <Label htmlFor="note">Boarding notes (optional)</Label>
+              <Label htmlFor="note">Boarding notes for owners (optional)</Label>
               <Textarea
                 id="note"
                 rows={3}
@@ -163,7 +163,7 @@ export default function NewStayPage() {
             </div>
 
             <div className="grid gap-1.5">
-              <Label htmlFor="mealSchedule">Meal schedule (optional)</Label>
+              <Label htmlFor="mealSchedule">Meal schedule / notes (optional)</Label>
               <Textarea
                 id="mealSchedule"
                 rows={3}

@@ -377,7 +377,7 @@ export default function StayDetailPage() {
               </div>
 
               <div className="grid gap-1.5">
-                <Label htmlFor="editNote">Boarding notes (optional)</Label>
+                <Label htmlFor="editNote">Boarding notes for owners (optional)</Label>
                 <Textarea
                   id="editNote"
                   rows={3}
@@ -388,7 +388,7 @@ export default function StayDetailPage() {
               </div>
 
               <div className="grid gap-1.5">
-                <Label htmlFor="editMealSchedule">Meal schedule (optional)</Label>
+                <Label htmlFor="editMealSchedule">Meal schedule / notes (optional)</Label>
                 <Textarea
                   id="editMealSchedule"
                   rows={3}
@@ -493,7 +493,7 @@ export default function StayDetailPage() {
               {stay.note && (
                 <div className="mt-4 border-l-4 border-primary/30 pl-4 py-1">
                   <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
-                    Boarding notes
+                    Boarding notes for owners
                   </p>
                   <p className="text-sm">{stay.note}</p>
                 </div>

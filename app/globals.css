@@ -101,6 +101,20 @@
   --sidebar-accent-foreground: oklch(0.24 0.018 50);
   --sidebar-border:         oklch(0.9 0.014 75);
   --sidebar-ring:           oklch(0.65 0.16 32);
+
+  /* Calendar bar pastels — quick-log pill backgrounds */
+  --bar-coral-bg:   oklch(0.88 0.10 32);
+  --bar-coral-text: oklch(0.28 0.10 32);
+  --bar-sage-bg:    oklch(0.88 0.08 150);
+  --bar-sage-text:  oklch(0.28 0.08 150);
+  --bar-sky-bg:     oklch(0.88 0.08 250);
+  --bar-sky-text:   oklch(0.28 0.08 250);
+  --bar-amber-bg:   oklch(0.90 0.10 75);
+  --bar-amber-text: oklch(0.28 0.10 75);
+  --bar-rose-bg:    oklch(0.88 0.08 340);
+  --bar-rose-text:  oklch(0.28 0.08 340);
+  --bar-teal-bg:    oklch(0.88 0.08 200);
+  --bar-teal-text:  oklch(0.28 0.08 200);
 }
 
 @layer base {

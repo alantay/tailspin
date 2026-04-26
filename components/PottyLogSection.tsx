@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,10 +12,17 @@ type Props = {
   stayId: string;
   initialLogs: PottyLogRow[];
   stayActive: boolean;
+  externalLog?: PottyLogRow | null;
 };
 
-export default function PottyLogSection({ stayId, initialLogs, stayActive }: Props) {
+export default function PottyLogSection({ stayId, initialLogs, stayActive, externalLog }: Props) {
   const [logs, setLogs] = useState(initialLogs);
+
+  useEffect(() => {
+    if (externalLog) {
+      setLogs((prev) => [externalLog, ...prev.filter((l) => l.id !== externalLog.id)]);
+    }
+  }, [externalLog]);
   const [logging, setLogging] = useState<"pee" | "poop" | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTime, setEditTime] = useState("");

@@ -8,6 +8,7 @@ import UploadZone from "@/components/UploadZone";
 import MediaCard from "@/components/MediaCard";
 import PottyLogSection from "@/components/PottyLogSection";
 import MealLogSection from "@/components/MealLogSection";
+import QuickLogRow from "@/components/QuickLogRow";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -52,6 +53,8 @@ export default function StayDetailPage() {
   const [uploads, setUploads] = useState<UploadRow[]>([]);
   const [pottyLogs, setPottyLogs] = useState<PottyLogRow[]>([]);
   const [mealLogs, setMealLogs] = useState<MealLogRow[]>([]);
+  const [quickMealLog, setQuickMealLog] = useState<MealLogRow | null>(null);
+  const [quickPottyLog, setQuickPottyLog] = useState<PottyLogRow | null>(null);
   const [loading, setLoading] = useState(true);
   const [completing, setCompleting] = useState(false);
   const [changingPhoto, setChangingPhoto] = useState(false);
@@ -583,6 +586,22 @@ export default function StayDetailPage() {
         </CardContent>
       </Card>
 
+      {/* Quick log */}
+      {stay.status === "active" && (
+        <Card>
+          <CardContent className="pt-5">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+              Quick log
+            </p>
+            <QuickLogRow
+              stayId={stay.id}
+              onMealLogged={setQuickMealLog}
+              onPottyLogged={setQuickPottyLog}
+            />
+          </CardContent>
+        </Card>
+      )}
+
       {/* Private notes */}
       <Card>
         <CardContent className="pt-5">
@@ -642,6 +661,7 @@ export default function StayDetailPage() {
         stayId={stay.id}
         initialLogs={mealLogs}
         stayActive={stay.status === "active"}
+        externalLog={quickMealLog}
       />
 
       {/* Potty log */}
@@ -649,6 +669,7 @@ export default function StayDetailPage() {
         stayId={stay.id}
         initialLogs={pottyLogs}
         stayActive={stay.status === "active"}
+        externalLog={quickPottyLog}
       />
 
       {/* Upload section — only for active stays */}

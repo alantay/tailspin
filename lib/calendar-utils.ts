@@ -6,15 +6,6 @@ export type CalendarDay = {
   isToday: boolean;
 };
 
-export type WeekBar = {
-  stay: StayRow;
-  colorIndex: number;
-  startCol: number;
-  spanCols: number;
-  isStart: boolean;
-  isEnd: boolean;
-  lane: number;
-};
 
 export const STAY_COLORS = [
   { bg: "oklch(0.88 0.10 32)",  text: "oklch(0.28 0.10 32)"  }, // coral
@@ -102,85 +93,14 @@ export function assignColors(stays: StayRow[], viewEndStr: string): Map<string, 
   return colorMap;
 }
 
-export function buildWeekBars(
-  week: CalendarDay[],
+export function getStaysForDay(
+  dayStr: string,
   stays: StayRow[],
   colorMap: Map<string, number>,
   viewEndStr: string
-): WeekBar[][] {
-  const weekDates = week.map(d => toDateString(d.date));
-  const weekStart = weekDates[0];
-  const weekEnd = weekDates[6];
-
-  // Find the first and last current-month column explicitly
-  let firstCMCol = -1;
-  let lastCMCol = -1;
-  for (let i = 0; i < 7; i++) {
-    if (week[i].isCurrentMonth) {
-      if (firstCMCol === -1) firstCMCol = i;
-      lastCMCol = i;
-    }
-  }
-  if (firstCMCol === -1) return [];
-
-  const bars: Omit<WeekBar, "lane">[] = [];
-
-  for (const stay of stays) {
-    const end = effectiveEnd(stay, viewEndStr);
-
-    // Skip stays that don't overlap this week at all
-    if (stay.start_date > weekEnd || end < weekStart) continue;
-
-    // Raw column: use -1 sentinel if before week, 7 if after week
-    const rawStartCol = stay.start_date < weekStart
-      ? -1
-      : weekDates.indexOf(stay.start_date);
-    const rawEndCol = end > weekEnd
-      ? 7
-      : weekDates.indexOf(end);
-
-    // Map to visible CM columns
-    const startCol = Math.max(rawStartCol === -1 ? 0 : rawStartCol, firstCMCol);
-    const endCol = Math.min(rawEndCol === 7 ? 6 : rawEndCol, lastCMCol);
-    if (endCol < startCol) continue;
-
-    bars.push({
-      stay,
-      colorIndex: colorMap.get(stay.id) ?? 0,
-      startCol,
-      spanCols: endCol - startCol + 1,
-      isStart: rawStartCol >= firstCMCol,  // stay begins within CM portion of this week
-      isEnd: rawEndCol <= lastCMCol,       // stay ends within CM portion of this week
-    });
-  }
-
-  // Assign lanes (pack greedily by column range)
-  const laneOccupancy: Array<[number, number][]> = []; // lane → list of [startCol, endCol]
-  const barsWithLane: WeekBar[] = [];
-
-  for (const bar of bars) {
-    let lane = 0;
-    while (true) {
-      if (!laneOccupancy[lane]) laneOccupancy[lane] = [];
-      const occupied = laneOccupancy[lane].some(
-        ([s, e]) => !(bar.startCol > e || bar.startCol + bar.spanCols - 1 < s)
-      );
-      if (!occupied) break;
-      lane++;
-    }
-    laneOccupancy[lane].push([bar.startCol, bar.startCol + bar.spanCols - 1]);
-    barsWithLane.push({ ...bar, lane });
-  }
-
-  // Group by lane
-  const maxLane = barsWithLane.reduce((m, b) => Math.max(m, b.lane), -1);
-  const byLane: WeekBar[][] = Array.from({ length: maxLane + 1 }, () => []);
-  for (const bar of barsWithLane) {
-    byLane[bar.lane].push(bar);
-  }
-  return byLane;
+): Array<{ stay: StayRow; colorIndex: number }> {
+  return stays
+    .filter(s => s.start_date <= dayStr && effectiveEnd(s, viewEndStr) >= dayStr)
+    .map(s => ({ stay: s, colorIndex: colorMap.get(s.id) ?? 0 }));
 }
 
-export function maxLanesInWeek(weekBars: WeekBar[][]): number {
-  return weekBars.length;
-}

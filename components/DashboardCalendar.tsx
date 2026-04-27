@@ -17,7 +17,7 @@ type Props = {
   stays: StayRow[];
 };
 
-const BAR_TOP = 24;    // px — space for day number
+const DATE_H = 26;     // px — height reserved for day number row
 const BAR_H = 18;      // px — bar height
 const BAR_GAP = 2;     // px — gap between lanes
 const ROW_BOTTOM_PAD = 6; // px
@@ -90,7 +90,7 @@ export default function DashboardCalendar({ stays }: Props) {
         {grid.map((week, wi) => {
           const weekBars = buildWeekBars(week, stays, colorMap, viewEndStr);
           const numLanes = weekBars.length;
-          const rowHeight = BAR_TOP + numLanes * (BAR_H + BAR_GAP) + ROW_BOTTOM_PAD;
+          const rowHeight = DATE_H + numLanes * (BAR_H + BAR_GAP) + ROW_BOTTOM_PAD;
 
           return (
             <div
@@ -98,33 +98,12 @@ export default function DashboardCalendar({ stays }: Props) {
               className="relative grid grid-cols-7"
               style={{ minHeight: rowHeight }}
             >
-              {/* Day number cells */}
-              {week.map((day, di) => (
-                <div
-                  key={di}
-                  className="text-right pr-1.5 pt-0.5"
-                >
-                  <span
-                    className={[
-                      "inline-flex items-center justify-center text-[11px] font-medium w-5 h-5 rounded-full",
-                      !day.isCurrentMonth
-                        ? "text-muted-foreground/40"
-                        : day.isToday
-                        ? "bg-primary text-primary-foreground font-bold"
-                        : "text-foreground",
-                    ].join(" ")}
-                  >
-                    {day.date.getDate()}
-                  </span>
-                </div>
-              ))}
-
-              {/* Bars overlay — percentage-based positioning */}
-              <div className="absolute inset-0 pointer-events-none">
+              {/* Bars overlay — rendered first so date numbers sit on top */}
+              <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 0 }}>
                 {weekBars.map((laneBars: WeekBar[], laneIdx: number) =>
                   laneBars.map((bar: WeekBar) => {
                     const color = STAY_COLORS[bar.colorIndex % STAY_COLORS.length];
-                    const top = BAR_TOP + laneIdx * (BAR_H + BAR_GAP);
+                    const top = DATE_H + laneIdx * (BAR_H + BAR_GAP);
                     const marginL = bar.isStart ? 2 : 0;
                     const marginR = bar.isEnd ? 2 : 0;
                     return (
@@ -144,7 +123,6 @@ export default function DashboardCalendar({ stays }: Props) {
                           borderBottomLeftRadius: bar.isStart ? 999 : 0,
                           borderTopRightRadius: bar.isEnd ? 999 : 0,
                           borderBottomRightRadius: bar.isEnd ? 999 : 0,
-                          zIndex: 10,
                         }}
                       >
                         {bar.isStart && (
@@ -160,6 +138,28 @@ export default function DashboardCalendar({ stays }: Props) {
                   })
                 )}
               </div>
+
+              {/* Day number cells — on top of bars */}
+              {week.map((day, di) => (
+                <div
+                  key={di}
+                  className="relative text-right pr-1.5 pt-0.5"
+                  style={{ zIndex: 1 }}
+                >
+                  <span
+                    className={[
+                      "inline-flex items-center justify-center text-[11px] font-medium w-5 h-5 rounded-full",
+                      !day.isCurrentMonth
+                        ? "text-muted-foreground/40"
+                        : day.isToday
+                        ? "bg-primary text-primary-foreground font-bold"
+                        : "text-foreground",
+                    ].join(" ")}
+                  >
+                    {day.date.getDate()}
+                  </span>
+                </div>
+              ))}
             </div>
           );
         })}

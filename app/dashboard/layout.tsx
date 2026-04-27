@@ -1,21 +1,12 @@
-import { redirect } from "next/navigation";
 import Image from "next/image";
 import { LayoutDashboard, User } from "lucide-react";
-import { createClient } from "@/lib/supabase/server";
 import SignOutButton from "@/components/SignOutButton";
 
-export default async function DashboardLayout({
+export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect("/");
-
   return (
     <div className="min-h-full">
       <nav className="border-b border-border bg-card px-4 py-3">

@@ -112,9 +112,15 @@ export function buildWeekBars(
   const weekStart = weekDates[0];
   const weekEnd = weekDates[6];
 
-  // Valid column range: only current-month cells
-  const firstCMCol = week.findIndex(d => d.isCurrentMonth);
-  const lastCMCol = 6 - [...week].reverse().findIndex(d => d.isCurrentMonth);
+  // Find the first and last current-month column explicitly
+  let firstCMCol = -1;
+  let lastCMCol = -1;
+  for (let i = 0; i < 7; i++) {
+    if (week[i].isCurrentMonth) {
+      if (firstCMCol === -1) firstCMCol = i;
+      lastCMCol = i;
+    }
+  }
   if (firstCMCol === -1) return [];
 
   const bars: Omit<WeekBar, "lane">[] = [];
@@ -122,19 +128,20 @@ export function buildWeekBars(
   for (const stay of stays) {
     const end = effectiveEnd(stay, viewEndStr);
 
-    // Skip stays entirely outside this week
+    // Skip stays that don't overlap this week at all
     if (stay.start_date > weekEnd || end < weekStart) continue;
 
-    // Map stay dates to raw column indices (clamped to week bounds)
-    let rawStartCol = weekDates.indexOf(stay.start_date);
-    if (rawStartCol === -1) rawStartCol = stay.start_date < weekStart ? 0 : 7;
-    let rawEndCol = weekDates.indexOf(end);
-    if (rawEndCol === -1) rawEndCol = end > weekEnd ? 6 : -1;
-    if (rawEndCol < rawStartCol) continue;
+    // Raw column: use -1 sentinel if before week, 7 if after week
+    const rawStartCol = stay.start_date < weekStart
+      ? -1
+      : weekDates.indexOf(stay.start_date);
+    const rawEndCol = end > weekEnd
+      ? 7
+      : weekDates.indexOf(end);
 
-    // Clamp to current-month columns only — no bars on overflow days
-    const startCol = Math.max(rawStartCol, firstCMCol);
-    const endCol = Math.min(rawEndCol, lastCMCol);
+    // Map to visible CM columns
+    const startCol = Math.max(rawStartCol === -1 ? 0 : rawStartCol, firstCMCol);
+    const endCol = Math.min(rawEndCol === 7 ? 6 : rawEndCol, lastCMCol);
     if (endCol < startCol) continue;
 
     bars.push({
@@ -142,8 +149,8 @@ export function buildWeekBars(
       colorIndex: colorMap.get(stay.id) ?? 0,
       startCol,
       spanCols: endCol - startCol + 1,
-      isStart: rawStartCol >= firstCMCol, // stay begins in this week's visible range
-      isEnd: rawEndCol <= lastCMCol,      // stay ends in this week's visible range
+      isStart: rawStartCol >= firstCMCol,  // stay begins within CM portion of this week
+      isEnd: rawEndCol <= lastCMCol,       // stay ends within CM portion of this week
     });
   }
 

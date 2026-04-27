@@ -110,34 +110,33 @@ export function buildWeekBars(
 ): WeekBar[][] {
   const weekStart = toDateString(week[0].date);
   const weekEnd = toDateString(week[6].date);
+  // Current-month boundaries — bars must not render on overflow days
+  const viewStartStr = viewEndStr.slice(0, 8) + "01";
+  const effWeekStart = weekStart > viewStartStr ? weekStart : viewStartStr;
+  const effWeekEnd = weekEnd < viewEndStr ? weekEnd : viewEndStr;
 
   const bars: Omit<WeekBar, "lane">[] = [];
 
   for (const stay of stays) {
     const end = effectiveEnd(stay, viewEndStr);
-    // Skip stays entirely outside this week
-    if (stay.start_date > weekEnd || end < weekStart) continue;
+    // Skip stays outside the current-month portion of this week
+    if (stay.start_date > effWeekEnd || end < effWeekStart) continue;
 
-    // Cap to current-month bounds so bars don't bleed onto overflow days
-    const viewStartStr = viewEndStr.slice(0, 8) + "01";
-    const startCap = weekStart > viewStartStr ? weekStart : viewStartStr;
-    const endCap = weekEnd < viewEndStr ? weekEnd : viewEndStr;
-
-    const clampedStart = stay.start_date < startCap ? startCap : stay.start_date;
-    const clampedEnd = end > endCap ? endCap : end;
+    const clampedStart = stay.start_date < effWeekStart ? effWeekStart : stay.start_date;
+    const clampedEnd = end > effWeekEnd ? effWeekEnd : end;
 
     // Find column indices within this week
     const startCol = week.findIndex(d => toDateString(d.date) === clampedStart);
     const endCol = week.findIndex(d => toDateString(d.date) === clampedEnd);
-    if (startCol === -1 || endCol === -1) continue;
+    if (startCol === -1 || endCol === -1 || endCol < startCol) continue;
 
     bars.push({
       stay,
       colorIndex: colorMap.get(stay.id) ?? 0,
       startCol,
       spanCols: endCol - startCol + 1,
-      isStart: stay.start_date >= weekStart,
-      isEnd: end <= weekEnd,
+      isStart: stay.start_date >= effWeekStart,
+      isEnd: end <= effWeekEnd,
     });
   }
 

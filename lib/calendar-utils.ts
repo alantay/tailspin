@@ -118,8 +118,13 @@ export function buildWeekBars(
     // Skip stays entirely outside this week
     if (stay.start_date > weekEnd || end < weekStart) continue;
 
-    const clampedStart = stay.start_date < weekStart ? weekStart : stay.start_date;
-    const clampedEnd = end > weekEnd ? weekEnd : end;
+    // Cap to current-month bounds so bars don't bleed onto overflow days
+    const viewStartStr = viewEndStr.slice(0, 8) + "01";
+    const startCap = weekStart > viewStartStr ? weekStart : viewStartStr;
+    const endCap = weekEnd < viewEndStr ? weekEnd : viewEndStr;
+
+    const clampedStart = stay.start_date < startCap ? startCap : stay.start_date;
+    const clampedEnd = end > endCap ? endCap : end;
 
     // Find column indices within this week
     const startCol = week.findIndex(d => toDateString(d.date) === clampedStart);

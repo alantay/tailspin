@@ -37,7 +37,7 @@ export default function QuickLogRow({ stayId, onMealLogged, onPottyLogged }: Pro
     const res = await fetch("/api/potty-log", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ stay_id: stayId, type }),
+      body: JSON.stringify({ stay_id: stayId, event_type: type }),
     });
     if (res.ok) {
       const log: PottyLogRow = await res.json();

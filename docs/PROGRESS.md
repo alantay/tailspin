@@ -135,3 +135,4 @@ Features considered but deferred. Revisit post-V1 based on real usage.
 | 2026-04-24 | Log refinements: editable timestamps on potty + meal logs (click the time → datetime-local input, save on blur/Enter). Dropped "what they ate" field from meal log (kept simple: one-tap). Stay detail header buttons stack on mobile so Share button no longer clips. |
 | 2026-04-24 | Stay card redesign: two-row layout (info row + actions row) so text never competes with buttons for horizontal space. Fixes wrapping and clipped Share button on 375px screens. |
 | 2026-04-24 | Design system implementation: added `--bar-*` pastel CSS tokens to globals.css. Quick log row (🍽️ Meal / 💧 Pee / 💩 Poop pill buttons) on active stay detail; taps flow into MealLogSection + PottyLogSection via externalLog prop. |
+| 2026-04-27 | Calendar dot labels: dots now show the first initial of the pet name (e.g. "R" for Ritchie) in the stay's text color, making each dot identifiable without hovering. |

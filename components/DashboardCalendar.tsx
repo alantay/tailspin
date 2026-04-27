@@ -108,15 +108,20 @@ export default function DashboardCalendar({ stays }: Props) {
                     </span>
 
                     {/* Dots row — fixed height so all cells are uniform */}
-                    <div className="flex gap-0.5 h-2 items-center">
+                    <div className="flex gap-0.5 h-4 items-center">
                       {dayStays.map(({ stay, colorIndex }) => (
                         <a
                           key={stay.id}
                           href={`/dashboard/stay/${stay.id}`}
                           title={stay.pet_name}
-                          className="w-1.5 h-1.5 rounded-full shrink-0 hover:scale-125 transition-transform"
-                          style={{ background: STAY_COLORS[colorIndex % STAY_COLORS.length].bg }}
-                        />
+                          className="w-4 h-4 rounded-full shrink-0 hover:scale-110 transition-transform inline-flex items-center justify-center text-[8px] font-bold leading-none"
+                          style={{
+                            background: STAY_COLORS[colorIndex % STAY_COLORS.length].bg,
+                            color: STAY_COLORS[colorIndex % STAY_COLORS.length].text,
+                          }}
+                        >
+                          {stay.pet_name[0]?.toUpperCase() ?? "?"}
+                        </a>
                       ))}
                     </div>
                   </div>

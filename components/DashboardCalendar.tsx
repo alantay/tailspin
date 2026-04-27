@@ -17,7 +17,7 @@ type Props = {
   stays: StayRow[];
 };
 
-const DATE_H = 26;     // px — height reserved for day number row
+const DATE_H = 26;     // px — minimum row height (date number area)
 const BAR_H = 18;      // px — bar height
 const BAR_GAP = 2;     // px — gap between lanes
 const ROW_BOTTOM_PAD = 6; // px
@@ -90,7 +90,9 @@ export default function DashboardCalendar({ stays }: Props) {
         {grid.map((week, wi) => {
           const weekBars = buildWeekBars(week, stays, colorMap, viewEndStr);
           const numLanes = weekBars.length;
-          const rowHeight = DATE_H + numLanes * (BAR_H + BAR_GAP) + ROW_BOTTOM_PAD;
+          // Bars start at y=0 and overlap with the date number area (dates are z=1 on top).
+          // Row needs to fit both the date number height and any extra lanes beyond lane 0.
+          const rowHeight = Math.max(DATE_H, numLanes * (BAR_H + BAR_GAP)) + ROW_BOTTOM_PAD;
 
           return (
             <div
@@ -103,7 +105,7 @@ export default function DashboardCalendar({ stays }: Props) {
                 {weekBars.map((laneBars: WeekBar[], laneIdx: number) =>
                   laneBars.map((bar: WeekBar) => {
                     const color = STAY_COLORS[bar.colorIndex % STAY_COLORS.length];
-                    const top = DATE_H + laneIdx * (BAR_H + BAR_GAP);
+                    const top = laneIdx * (BAR_H + BAR_GAP);
                     const marginL = bar.isStart ? 2 : 0;
                     const marginR = bar.isEnd ? 2 : 0;
                     return (
